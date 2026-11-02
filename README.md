@@ -2,6 +2,8 @@
 
 Backend del videojuego narrativo persistente: el Augurio, el poblado con sus 5 stats, las tres facciones y la decisión diaria. Es la primera versión funcional del sistema descrito en el plan de diseño — no la ilustración completa del mockup (eso llega después, como capa visual sobre esta API).
 
+Lo que falta por construir, priorizado, está en [`ROADMAP.md`](./ROADMAP.md).
+
 ## Stack
 
 - **Backend:** Python 3.12 + FastAPI + SQLAlchemy 2 + Alembic
@@ -61,11 +63,6 @@ frontend/
 Un job (`APScheduler`, corre dentro del propio proceso de la API) genera la decisión del día a las 00:05 UTC a partir de un banco de preguntas (`decision_templates`, migración `0003`) que se recicla cuando se agota. Es idempotente y tiene un **fallback perezoso**: si el job no llegó a correr (contenedor reiniciado a medianoche, etc.), la primera visita a `GET /api/decisions/today` ese día la crea igual — nunca depende solo del cron.
 
 El algoritmo del Augurio está separado en una función pura (`compute_weights`) justo para poder testearlo sin base de datos — ver `backend/tests/test_sorting.py`.
-
-## Lo que falta a propósito (siguiente iteración)
-
-- **Transición de fases de temporada** (construcción → conflicto → convergencia → colapso) y el **reset/Última Luz** no tienen lógica de backend aún — solo existen en el diseño.
-- No hay verificación real de identidad de Instagram/TikTok todavía (el `handle` se guarda tal cual, sin comprobar que existe).
 
 ## Tests
 
