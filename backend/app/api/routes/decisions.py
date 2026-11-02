@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
@@ -9,6 +9,7 @@ from app.db.session import get_db
 from app.models.decision import Decision, Vote
 from app.models.user import User
 from app.schemas.decision import DecisionOut, VoteIn
+from app.services.daily_decision import ensure_decision_for_today
 from app.services.economy import InsufficientChispas, spend_chispas
 from app.services.season import get_active_season
 
@@ -28,17 +29,10 @@ def _vote_tallies(db: Session, decision_id) -> tuple[int, int]:
 
 def _today_decision(db: Session) -> Decision:
     season = get_active_season(db)
-    decision = (
-        db.query(Decision)
-        .filter(Decision.season_id == season.id, Decision.day == date.today())
-        .first()
-    )
-    if decision is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Todavía no hay decisión publicada para hoy",
-        )
-    return decision
+    try:
+        return ensure_decision_for_today(db, season)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
 @router.get("/today", response_model=DecisionOut)

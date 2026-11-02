@@ -51,11 +51,14 @@ frontend/
 | `GET /api/world` | Las 5 stats del mundo de la temporada activa |
 | `GET /api/decisions/today` / `POST /today/vote` | La decisión diaria y el voto (con peso extra pagado en Chispas) |
 
+### Decisión diaria automática
+
+Un job (`APScheduler`, corre dentro del propio proceso de la API) genera la decisión del día a las 00:05 UTC a partir de un banco de preguntas (`decision_templates`, migración `0003`) que se recicla cuando se agota. Es idempotente y tiene un **fallback perezoso**: si el job no llegó a correr (contenedor reiniciado a medianoche, etc.), la primera visita a `GET /api/decisions/today` ese día la crea igual — nunca depende solo del cron.
+
 El algoritmo del Augurio está separado en una función pura (`compute_weights`) justo para poder testearlo sin base de datos — ver `backend/tests/test_sorting.py`.
 
 ## Lo que falta a propósito (siguiente iteración)
 
-- **Crear la decisión de cada día** todavía es manual (no hay scheduler ni panel de admin). De momento se inserta a mano en `decisions`.
 - **Transición de fases de temporada** (construcción → conflicto → convergencia → colapso) y el **reset/Última Luz** no tienen lógica de backend aún — solo existen en el diseño.
 - El **frontend es funcional pero no ilustrado**: usa barras simples, no el poblado con casas/árboles/lago del mockup. Portar esos sprites (Kenney) a esta web real es la siguiente tarea visual.
 - No hay verificación real de identidad de Instagram/TikTok todavía (el `handle` se guarda tal cual, sin comprobar que existe).
