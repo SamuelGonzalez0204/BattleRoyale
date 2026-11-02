@@ -16,12 +16,16 @@
         <h1 id="season-title" style="font-size: 20px;">Cargando temporada…</h1>
         <div id="phase-pill" class="pill" style="border: 1px solid var(--accent); color: var(--accent);"></div>
       </div>
-      <div id="who" class="muted" style="font-size: 13px;"></div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img id="avatar" src="/sprites/avatar.png" alt="" style="width: 30px; height: 30px; object-fit: contain; background: var(--card-soft); border-radius: 50%;" />
+        <div id="who" class="muted" style="font-size: 13px;"></div>
+      </div>
     </div>
 
-    <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
-      <h2 style="font-size: 16px;">Estado del mundo</h2>
-      <div id="stats" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    <div class="card" style="display: flex; flex-direction: column; gap: 14px;">
+      <h2 style="font-size: 16px;">Vista del poblado</h2>
+      <div id="village" style="position: relative; width: 100%; aspect-ratio: 16 / 7; border-radius: 14px; overflow: hidden; background: linear-gradient(160deg, #1f3b2a 0%, #1a2f23 55%, #162820 100%); border: 1px solid var(--border);"></div>
+      <div id="stats" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
     </div>
 
     <div style="display: flex; gap: 20px; flex-wrap: wrap;">

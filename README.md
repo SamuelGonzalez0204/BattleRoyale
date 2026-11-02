@@ -36,9 +36,14 @@ backend/
 frontend/
   index.html      login / registro
   augurio.html    asignación de facción
-  poblado.html    HUD: stats del mundo, facciones, Chispas, decisión del día
-  src/            JS compartido (api.js, estilos)
+  poblado.html    HUD: poblado ilustrado, facciones, Chispas, decisión del día
+  src/            JS compartido (api.js, village.js, estilos)
+  public/sprites/ sprites CC0 (Kenney) que dibujan el poblado
 ```
+
+### El poblado ilustrado
+
+`src/village.js` traduce las 5 stats de `/api/world` en una escena con sprites reales (CC0, Kenney): el lago es una textura de agua, los cultivos son tierra labrada con plantas si `comida` lo permite, las casas se van "construyendo" según `poblacion` (de 1 a 5) y los árboles según `defensa` — el resto queda como parcela vacía marcada con un borde punteado. Es la misma lógica que el mockup de diseño, ahora con datos reales en vez de números fijos.
 
 ## Qué hace ya la API
 
@@ -60,7 +65,6 @@ El algoritmo del Augurio está separado en una función pura (`compute_weights`)
 ## Lo que falta a propósito (siguiente iteración)
 
 - **Transición de fases de temporada** (construcción → conflicto → convergencia → colapso) y el **reset/Última Luz** no tienen lógica de backend aún — solo existen en el diseño.
-- El **frontend es funcional pero no ilustrado**: usa barras simples, no el poblado con casas/árboles/lago del mockup. Portar esos sprites (Kenney) a esta web real es la siguiente tarea visual.
 - No hay verificación real de identidad de Instagram/TikTok todavía (el `handle` se guarda tal cual, sin comprobar que existe).
 
 ## Tests

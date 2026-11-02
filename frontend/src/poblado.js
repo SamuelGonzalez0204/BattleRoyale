@@ -1,12 +1,5 @@
 import { apiFetch, requireAuthOrRedirect } from "./api.js";
-
-const STAT_LABELS = {
-  poblacion: "Población",
-  comida: "Comida",
-  moral: "Moral",
-  defensa: "Defensa",
-  oro: "Oro",
-};
+import { renderStatChips, renderVillage } from "./village.js";
 
 if (requireAuthOrRedirect()) {
   init();
@@ -36,19 +29,8 @@ async function loadWorld() {
   document.getElementById("season-title").textContent = `Temporada ${world.season_number} · ${world.season_name}`;
   document.getElementById("phase-pill").textContent = `FASE: ${world.phase.toUpperCase()}`;
 
-  const statsBox = document.getElementById("stats");
-  statsBox.innerHTML = "";
-  for (const key of Object.keys(STAT_LABELS)) {
-    const pct = world[key];
-    const row = document.createElement("div");
-    row.style.cssText = "display:flex;align-items:center;gap:14px";
-    row.innerHTML = `
-      <div class="muted" style="width:90px;font-size:13px">${STAT_LABELS[key]}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-      <div style="width:36px;text-align:right;font-size:13px">${pct}%</div>
-    `;
-    statsBox.appendChild(row);
-  }
+  renderVillage(document.getElementById("village"), world);
+  renderStatChips(document.getElementById("stats"), world);
 }
 
 async function loadFactions(myFactionSlug) {
