@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Ciclo — Entrar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div class="center-screen">
+    <div class="card" style="max-width: 420px; width: 100%; display: flex; flex-direction: column; gap: 20px;">
+      <div>
+        <div class="muted" style="font-size: 13px; letter-spacing: 3px; text-transform: uppercase;">El Ciclo</div>
+        <h1 style="font-size: 22px; margin-top: 6px;">Cruza el Umbral</h1>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button id="tab-login" class="btn secondary" style="flex: 1;">Entrar</button>
+        <button id="tab-register" class="btn secondary" style="flex: 1;">Crear cuenta</button>
+      </div>
+
+      <form id="form-login" style="display: flex; flex-direction: column; gap: 12px;">
+        <input class="input" type="email" name="email" placeholder="Email" required />
+        <input class="input" type="password" name="password" placeholder="Contraseña" required />
+        <button class="btn" type="submit">Entrar</button>
+      </form>
+
+      <form id="form-register" style="display: none; flex-direction: column; gap: 12px;">
+        <input class="input" type="email" name="email" placeholder="Email" required />
+        <input class="input" type="text" name="handle" placeholder="Tu @ de IG/TikTok" required minlength="2" />
+        <input class="input" type="password" name="password" placeholder="Contraseña (mín. 8 caracteres)" required minlength="8" />
+        <button class="btn" type="submit">Crear cuenta</button>
+      </form>
+
+      <div id="error" class="error" style="display: none;"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/auth.js"></script>
+</body>
+</html>

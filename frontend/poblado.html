@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El poblado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div class="wrap" style="display: flex; flex-direction: column; gap: 24px;">
+
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+        <h1 id="season-title" style="font-size: 20px;">Cargando temporada…</h1>
+        <div id="phase-pill" class="pill" style="border: 1px solid var(--accent); color: var(--accent);"></div>
+      </div>
+      <div id="who" class="muted" style="font-size: 13px;"></div>
+    </div>
+
+    <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+      <h2 style="font-size: 16px;">Estado del mundo</h2>
+      <div id="stats" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    </div>
+
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+      <div class="card" style="flex: 1 1 320px; display: flex; flex-direction: column; gap: 16px;">
+        <h2 style="font-size: 16px;">Influencia de facciones</h2>
+        <div id="factions" style="display: flex; flex-direction: column; gap: 12px;"></div>
+      </div>
+
+      <div class="card" style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 14px;">
+        <h2 style="font-size: 16px;">Tus Chispas</h2>
+        <div id="chispas" class="title" style="font-size: 36px; color: var(--accent);">—</div>
+        <p class="muted" style="margin: 0; font-size: 13px;">Se usan para votar con más peso en la decisión de hoy.</p>
+      </div>
+    </div>
+
+    <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <h2 style="font-size: 16px;">Decisión de hoy</h2>
+        <div id="decision-closes" class="muted" style="font-size: 12px;"></div>
+      </div>
+      <div id="decision-body"></div>
+    </div>
+
+  </div>
+
+  <script type="module" src="/src/poblado.js"></script>
+</body>
+</html>
