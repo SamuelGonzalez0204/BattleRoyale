@@ -42,7 +42,10 @@ def upgrade() -> None:
         sa.column("id", postgresql.UUID(as_uuid=True)),
         sa.column("number", sa.Integer),
         sa.column("name", sa.String),
-        sa.column("phase", sa.String),
+        sa.column(
+            "phase",
+            postgresql.ENUM(name="season_phase", create_type=False),
+        ),
         sa.column("is_active", sa.Boolean),
         sa.column("started_at", sa.DateTime(timezone=True)),
     )

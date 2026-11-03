@@ -17,10 +17,14 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 season_phase = postgresql.ENUM(
-    "construccion", "conflicto", "convergencia", "colapso", name="season_phase"
+    "construccion", "conflicto", "convergencia", "colapso",
+    name="season_phase",
+    create_type=False,
 )
 user_role = postgresql.ENUM(
-    "mercader", "guardia", "cronista", "explorador", name="user_role"
+    "mercader", "guardia", "cronista", "explorador",
+    name="user_role",
+    create_type=False,
 )
 
 
