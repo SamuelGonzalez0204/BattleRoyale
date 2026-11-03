@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import augurio, auth, decisions, factions, users, world
 from app.core.config import get_settings
 from app.db.session import SessionLocal
+from app.services.daily_cycle import run_daily_close
 from app.services.daily_decision import ensure_decision_for_today
 from app.services.season import get_active_season
 
@@ -33,12 +34,39 @@ def generate_daily_decision_job() -> None:
         db.close()
 
 
+def close_daily_decision_job() -> None:
+    """Cierra la decisión del día (aplica efectos al mundo) y avanza la fase si toca.
+    Idempotente; si no corre, GET /api/decisions/today cierra la de ayer al día siguiente."""
+    db = SessionLocal()
+    try:
+        result = run_daily_close(db)
+        logger.info(
+            "Cierre diario: %d decisiones cerradas, fase=%s (cambio=%s)",
+            result.closed_decisions,
+            result.phase.value,
+            result.phase_changed,
+        )
+    except ValueError:
+        logger.info("Sin temporada activa o sin estado de mundo: no se cerró la decisión diaria")
+    except Exception:
+        db.rollback()
+        logger.exception("Error inesperado en el cierre diario")
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     scheduler.add_job(
         generate_daily_decision_job,
         CronTrigger(hour=0, minute=5),
         id="daily_decision",
+        replace_existing=True,
+    )
+    scheduler.add_job(
+        close_daily_decision_job,
+        CronTrigger(hour=23, minute=59),
+        id="daily_close",
         replace_existing=True,
     )
     scheduler.start()
