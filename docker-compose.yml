@@ -23,8 +23,23 @@ services:
       db:
         condition: service_healthy
     environment:
+      ENV: ${ENV:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://battleroyale:battleroyale@db:5432/battleroyale}
       JWT_SECRET: ${JWT_SECRET:-change-me-in-prod}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-10080}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:8080}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:5173}
+      MAIL_BACKEND: ${MAIL_BACKEND:-console}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-El Ciclo <no-reply@elciclo.local>}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+      RATE_LIMIT_STORAGE_URI: ${RATE_LIMIT_STORAGE_URI:-memory://}
+      CHISPAS_DAILY_EARN_CAP: ${CHISPAS_DAILY_EARN_CAP:-30}
     ports:
       - "8000:8000"
 
