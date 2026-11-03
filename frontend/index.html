@@ -25,12 +25,13 @@
         <input class="input" type="email" name="email" placeholder="Email" required />
         <input class="input" type="password" name="password" placeholder="Contraseña" required />
         <button class="btn" type="submit">Entrar</button>
+        <a href="/recuperar.html" style="font-size: 13px; text-align: center;">¿Olvidaste tu contraseña?</a>
       </form>
 
       <form id="form-register" style="display: none; flex-direction: column; gap: 12px;">
         <input class="input" type="email" name="email" placeholder="Email" required />
         <input class="input" type="text" name="handle" placeholder="Tu @ de IG/TikTok" required minlength="2" />
-        <input class="input" type="password" name="password" placeholder="Contraseña (mín. 8 caracteres)" required minlength="8" />
+        <input class="input" type="password" name="password" placeholder="Contraseña (mín. 8 caracteres)" required minlength="8" maxlength="72" />
         <button class="btn" type="submit">Crear cuenta</button>
       </form>
 

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Ciclo — Recuperar contraseña</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div class="center-screen">
+    <div class="card" style="max-width: 420px; width: 100%; display: flex; flex-direction: column; gap: 20px;">
+      <div>
+        <div class="muted" style="font-size: 13px; letter-spacing: 3px; text-transform: uppercase;">El Ciclo</div>
+        <h1 id="title" style="font-size: 22px; margin-top: 6px;">Recuperar contraseña</h1>
+      </div>
+
+      <form id="form-request" style="display: none; flex-direction: column; gap: 12px;">
+        <p class="muted" style="margin: 0; font-size: 13px;">Escribe tu email y te enviaremos un enlace para elegir una contraseña nueva.</p>
+        <input class="input" type="email" name="email" placeholder="Email" required />
+        <button class="btn" type="submit">Enviar enlace</button>
+      </form>
+
+      <form id="form-confirm" style="display: none; flex-direction: column; gap: 12px;">
+        <input class="input" type="password" name="new_password" placeholder="Nueva contraseña (mín. 8 caracteres)" required minlength="8" maxlength="72" />
+        <input class="input" type="password" name="repeat_password" placeholder="Repite la contraseña" required minlength="8" maxlength="72" />
+        <button class="btn" type="submit">Cambiar contraseña</button>
+      </form>
+
+      <p id="success" class="muted" style="display: none; margin: 0;"></p>
+      <div id="error" class="error" style="display: none;"></div>
+      <a href="/index.html" style="font-size: 13px; text-align: center;">Volver a entrar</a>
+    </div>
+  </div>
+
+  <script type="module" src="/src/recuperar.js"></script>
+</body>
+</html>
