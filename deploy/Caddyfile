@@ -1,0 +1,24 @@
+# Caddy: TLS automático (Let's Encrypt) para {$DOMAIN}.
+# /api/* -> backend (FastAPI), todo lo demás -> frontend (nginx con el build de Vite).
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
+
+	handle {
+		reverse_proxy frontend:80
+	}
+}
