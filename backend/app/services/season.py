@@ -1,11 +1,14 @@
+from collections.abc import Mapping
 from datetime import datetime, timedelta
+from types import MappingProxyType
 from typing import Protocol
 
 from sqlalchemy.orm import Session
 
 from app.models.season import Season, SeasonPhase
 from app.models.world import WorldState
-from app.services.world_effects import STAT_KEYS
+from app.services.roles import recompute_all_roles
+from app.services.world_effects import STAT_KEYS, apply_effects
 
 PHASE_DURATION = timedelta(days=7)
 PHASE_ORDER: tuple[SeasonPhase, ...] = (
@@ -91,3 +94,42 @@ def advance_phase_if_due(season: PhasedSeason, now: datetime) -> bool:
         return False
     season.phase, season.phase_started_at = transition
     return True
+
+
+# --- Reset de temporada (Fase B) ---------------------------------------------
+
+# Misma base que la siembra de la Temporada 1 (migración 0002).
+WORLD_BASELINE: Mapping[str, int] = MappingProxyType(
+    {"poblacion": 68, "comida": 41, "moral": 55, "defensa": 72, "oro": 36}
+)
+
+
+def next_season_world(seal_effects: Mapping[str, int]) -> dict[str, int]:
+    """Regla pura: stats iniciales de la temporada siguiente = base + bonus del sello
+    (recortado a 0–100 por apply_effects). No modifica WORLD_BASELINE."""
+    return apply_effects(WORLD_BASELINE, seal_effects)
+
+
+def start_next_season(
+    db: Session, previous: Season, seal_effects: Mapping[str, int], now: datetime
+) -> Season:
+    """Cierra `previous` y abre la Temporada N+1 (activa, en construcción desde `now`)
+    con un WorldState nuevo desde WORLD_BASELINE + sello. Las facciones y las
+    Chispas de los usuarios no se tocan. Recalcula roles. No hace commit."""
+    previous.is_active = False
+    previous.ended_at = now
+    number = previous.number + 1
+    season = Season(
+        number=number,
+        name=f"Temporada {number}",
+        phase=SeasonPhase.construccion,
+        is_active=True,
+        started_at=now,
+        phase_started_at=now,
+    )
+    db.add(season)
+    db.flush()
+    db.add(WorldState(season_id=season.id, **next_season_world(seal_effects)))
+    recompute_all_roles(db)
+    db.flush()
+    return season

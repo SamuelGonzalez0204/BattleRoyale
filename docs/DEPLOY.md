@@ -157,6 +157,7 @@ Puedes ejecutarla a mano: `docker compose -f docker-compose.prod.yml run --rm ba
 | `RATE_LIMIT_REPORTS` | `10/hour` | Creación de reports. |
 | `RATE_LIMIT_HANDLE_VERIFICATION` | `5/hour` | Solicitud de verificación de handle. |
 | `RATE_LIMIT_ADMIN` | `120/minute` | Cada endpoint de `/api/admin/*`, por usuario. |
+| `RATE_LIMIT_BATTLE_ROYALE` | `30/minute` | Votos de táctica y sello de La Última Luz, y patrocinios (`/api/br/*`, `/api/sponsor`), por usuario. |
 | `EMAIL_VERIFICATION_EXPIRE_HOURS` | `48` | Validez del enlace de verificación de email. |
 | `PASSWORD_RESET_EXPIRE_MINUTES` | `60` | Validez del enlace de reset. |
 | `FRONTEND_BASE_URL` | `http://localhost:5173` | Base de los enlaces que se envían por email. |
