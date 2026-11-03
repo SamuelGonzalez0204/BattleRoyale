@@ -35,6 +35,7 @@ def read_me(current_user: User = Depends(get_current_user), db: Session = Depend
         is_verified=current_user.is_verified,
         handle_verification_status=current_user.handle_verification_status.value,
         handle_verification_code=_pending_code(current_user),
+        is_admin=current_user.is_admin,
     )
 
 

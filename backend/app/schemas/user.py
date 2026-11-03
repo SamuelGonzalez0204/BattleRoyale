@@ -46,6 +46,8 @@ class UserOut(BaseModel):
     handle_verification_status: str = "none"
     # Solo mientras está pendiente: el código que hay que poner en la bio.
     handle_verification_code: str | None = None
+    # Fase D: solo para que la UI muestre el panel; el backend es quien de verdad protege.
+    is_admin: bool = False
 
     model_config = {"from_attributes": True}
 

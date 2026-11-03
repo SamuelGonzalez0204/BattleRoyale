@@ -32,3 +32,13 @@ def get_current_user(
     if user is None:
         raise credentials_error
     return user
+
+
+def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    """401 sin sesión (vía get_current_user); 403 si la cuenta no es admin."""
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Necesitas permisos de administración",
+        )
+    return current_user

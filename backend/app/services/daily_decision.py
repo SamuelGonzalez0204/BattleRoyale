@@ -1,4 +1,6 @@
 import uuid
+from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import date, datetime, time, timezone
 
 from sqlalchemy import func
@@ -8,10 +10,11 @@ from sqlalchemy.orm import Session
 from app.models.decision import Decision, Vote
 from app.models.decision_template import DecisionTemplate
 from app.models.season import Season
+from app.models.user import UserRole
 from app.models.world import WorldState
 from app.services.roles import assign_roles_to_unassigned
 from app.services.season import world_stats
-from app.services.world_effects import apply_effects
+from app.services.world_effects import apply_effects, validate_effects
 
 
 def _now_utc() -> datetime:
@@ -163,3 +166,61 @@ def close_open_decisions(
         .all()
     )
     return [close_decision(db, decision, now=now) for decision in pending]
+
+
+class DecisionHasVotes(Exception):
+    """La decisión de hoy ya tiene votos: reemplazarla invalidaría esos votos."""
+
+
+@dataclass(frozen=True)
+class EmergencyDecision:
+    question: str
+    option_a: str
+    option_b: str
+    effects_a: Mapping[str, int]
+    effects_b: Mapping[str, int]
+    role_affinity: UserRole | None
+
+
+def _has_votes(db: Session, decision_id: uuid.UUID) -> bool:
+    return db.query(Vote.id).filter(Vote.decision_id == decision_id).first() is not None
+
+
+def _fill_decision(decision: Decision, content: EmergencyDecision, day: date) -> None:
+    decision.question = content.question
+    decision.option_a = content.option_a
+    decision.option_b = content.option_b
+    decision.effects_a = dict(content.effects_a)
+    decision.effects_b = dict(content.effects_b)
+    decision.role_affinity = content.role_affinity
+    decision.closes_at = _end_of_day_utc(day)
+    # Sin votos no se aplicó ningún efecto, así que reabrirla es seguro.
+    decision.closed_at = None
+    decision.winner = None
+
+
+def set_emergency_decision(
+    db: Session,
+    season: Season,
+    content: EmergencyDecision,
+    today: date | None = None,
+    now: datetime | None = None,
+) -> Decision:
+    """Decisión de hoy escrita a mano por un admin. Si ya existe la de hoy y nadie
+    ha votado, se reemplaza en el sitio (mismo id); si tiene votos -> DecisionHasVotes.
+    Valida los efectos con world_effects. Hace commit."""
+    validate_effects(content.effects_a)
+    validate_effects(content.effects_b)
+    today = today or _now_utc().date()
+    close_open_decisions(db, season, before=today, now=now)
+
+    decision = _find_decision(db, season, today)
+    if decision is None:
+        decision = Decision(season_id=season.id, day=today)
+        db.add(decision)
+    elif _has_votes(db, decision.id):
+        raise DecisionHasVotes("La decisión de hoy ya tiene votos")
+    _fill_decision(decision, content, today)
+    db.commit()
+    db.refresh(decision)
+    return decision
