@@ -13,6 +13,12 @@ class DecisionOut(BaseModel):
     votes_a: int
     votes_b: int
     my_vote: str | None = None
+    # Campos añadidos en la Fase A (opcionales para no romper clientes existentes)
+    effects_a: dict[str, int] = Field(default_factory=dict)
+    effects_b: dict[str, int] = Field(default_factory=dict)
+    role_affinity: str | None = None
+    closed: bool = False
+    winner: str | None = None
 
 
 class VoteIn(BaseModel):
