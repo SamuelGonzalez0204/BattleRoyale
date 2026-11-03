@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, Integer, String
+from sqlalchemy import Boolean, DateTime, Enum, Integer, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -27,4 +27,7 @@ class Season(Base):
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    phase_started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
