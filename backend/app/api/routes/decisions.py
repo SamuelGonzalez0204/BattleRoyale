@@ -8,7 +8,7 @@ from app.db.session import get_db
 from app.models.decision import Decision, Vote
 from app.models.user import User
 from app.schemas.decision import DecisionOut, VoteIn
-from app.services.daily_decision import ensure_decision_for_today, vote_tallies
+from app.services.daily_decision import BattleRoyaleInProgress, ensure_decision_for_today, vote_tallies
 from app.services.economy import InsufficientChispas, spend_chispas
 from app.services.season import get_active_season
 
@@ -19,6 +19,9 @@ def _today_decision(db: Session) -> Decision:
     season = get_active_season(db)
     try:
         return ensure_decision_for_today(db, season)
+    except BattleRoyaleInProgress as exc:
+        # 409: la decisión no "falta", es que el juego está en otra fase (La Última Luz).
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
