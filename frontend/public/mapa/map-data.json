@@ -1,0 +1,717 @@
+{
+ "meta": {
+  "name": "El Valle de la Grieta",
+  "season": "Temporada 1 · La Grieta Despierta",
+  "units": "pasos",
+  "note": "Coordenadas en el plano XZ; norte = -z. Fuente de verdad para regiones, lugares y pasos disputados.",
+  "scale": "mundo x2: 1 unidad = 1 paso"
+ },
+ "factions": {
+  "gremio": {
+   "name": "Gremio del Comercio",
+   "color": "#d9a94f"
+  },
+  "orden": {
+   "name": "Orden de la Muralla",
+   "color": "#7c92ad"
+  },
+  "culto": {
+   "name": "Culto de la Grieta",
+   "color": "#a06bdb"
+  },
+  "neutral": {
+   "name": "Sin dueño",
+   "color": "#c9c2b0"
+  }
+ },
+ "regions": [
+  {
+   "id": "plaza",
+   "name": "Plaza del Ciclo",
+   "faction": "neutral",
+   "role": "todos",
+   "stat": "moral",
+   "center": [
+    0,
+    0
+   ],
+   "radius": 48,
+   "summary": "El corazón del valle. Cada medianoche el Tablón amanece con una decisión nueva y las tres facciones discuten en la misma plaza.",
+   "story": "¿Quién pinta su emblema en la fuente la noche antes de una votación ajustada?"
+  },
+  {
+   "id": "bahia",
+   "name": "Bahía del Gremio",
+   "faction": "gremio",
+   "role": "mercader",
+   "stat": "oro",
+   "center": [
+    8,
+    132
+   ],
+   "radius": 60,
+   "summary": "Muelles, almacenes y el único faro de la isla. Todo lo que entra o sale del valle paga peaje al Gremio.",
+   "story": "Un barco sin tripulación lleva tres noches fondeado frente al arrecife. El Gremio dice que es suyo; nadie lo ha reclamado."
+  },
+  {
+   "id": "muralla",
+   "name": "Muralla del Norte",
+   "faction": "orden",
+   "role": "guardia",
+   "stat": "defensa",
+   "center": [
+    0,
+    -116
+   ],
+   "radius": 68,
+   "summary": "Una línea de torres y piedra que separa el valle de las Cumbres. La Orden decide quién cruza la Puerta.",
+   "story": "La Torre del Alba lleva semanas sin relevo. ¿Abandono, o alguien quiere el flanco oeste abierto?"
+  },
+  {
+   "id": "cementerio",
+   "name": "Cementerio de la Grieta",
+   "faction": "culto",
+   "role": "cronista",
+   "stat": "moral",
+   "center": [
+    132,
+    -36
+   ],
+   "radius": 56,
+   "summary": "Lápidas de siete temporadas y criptas que guardan el Archivo. Al sur, la Grieta brilla un poco más cada semana.",
+   "story": "Los cronistas juran que algunos nombres de las lápidas cambian solos después de cada Última Luz."
+  },
+  {
+   "id": "campos",
+   "name": "Campos y Molinos",
+   "faction": "disputada",
+   "role": "todos",
+   "stat": "comida",
+   "center": [
+    -148,
+    8
+   ],
+   "radius": 60,
+   "summary": "Trigo, huertas y tres molinos de viento. Quien controle el Puente del Molino decide qué come el valle.",
+   "story": "El Gremio compra el grano; la Orden lo requisa en tiempos de crisis. Los molineros aún no han elegido bando."
+  },
+  {
+   "id": "bosque",
+   "name": "Bosque de los Exploradores",
+   "faction": "neutral",
+   "role": "explorador",
+   "stat": "poblacion",
+   "center": [
+    124,
+    104
+   ],
+   "radius": 72,
+   "summary": "Un campamento entre árboles otoñales, a medio camino de todo. Desde la Atalaya se ve la costa entera.",
+   "story": "Los exploradores trazan mapas que no coinciden entre sí. Alguien está moviendo los mojones."
+  },
+  {
+   "id": "cumbres",
+   "name": "Cumbres Heladas",
+   "faction": "neutral",
+   "role": "campeones",
+   "stat": "ninguna",
+   "center": [
+    0,
+    -192
+   ],
+   "radius": 52,
+   "summary": "Nieve, pinos y un círculo de columnas que nadie recuerda haber construido. Aquí termina cada temporada.",
+   "story": "Cuando la Luz se cierra solo caben tres campeones en el círculo. Al final, solo uno."
+  }
+ ],
+ "pois": [
+  {
+   "id": "fuente",
+   "name": "Fuente del Ciclo",
+   "region": "plaza",
+   "kind": "hito",
+   "pos": [
+    0,
+    0
+   ],
+   "faction": "neutral",
+   "text": "La fuente marca el centro exacto del valle. Las tres facciones tienen prohibido izar banderas a menos de veinte pasos de ella."
+  },
+  {
+   "id": "tablon",
+   "name": "Tablón de Decisiones",
+   "region": "plaza",
+   "kind": "hito",
+   "pos": [
+    16,
+    -12
+   ],
+   "faction": "neutral",
+   "text": "Aquí se clava la decisión diaria a las 00:05. Cada voto con Chispas deja una muesca en la madera."
+  },
+  {
+   "id": "mercado",
+   "name": "Mercado de las Tres Lunas",
+   "region": "plaza",
+   "kind": "lugar",
+   "pos": [
+    -18,
+    16
+   ],
+   "faction": "neutral",
+   "text": "Puestos rojos y verdes donde los mercaderes compran rumores tan caros como el grano."
+  },
+  {
+   "id": "faro",
+   "name": "Faro del Gremio",
+   "region": "bahia",
+   "kind": "hito",
+   "pos": [
+    -48,
+    176
+   ],
+   "faction": "gremio",
+   "text": "Su haz guía a los barcos del Gremio. Si el faro se apaga una noche, la bahía queda abierta a contrabandistas."
+  },
+  {
+   "id": "muelles",
+   "name": "Muelles del Peaje",
+   "region": "bahia",
+   "kind": "lugar",
+   "pos": [
+    8,
+    148
+   ],
+   "faction": "gremio",
+   "text": "Dos espigones y una aduana. El oro del valle se cuenta aquí antes de llegar a la plaza."
+  },
+  {
+   "id": "barco-fantasma",
+   "name": "El Barco sin Nombre",
+   "region": "bahia",
+   "kind": "misterio",
+   "pos": [
+    -144,
+    224
+   ],
+   "faction": "culto",
+   "text": "Fondeado fuera del arrecife desde el inicio de la temporada. Nadie ha subido a bordo y ha vuelto para contarlo."
+  },
+  {
+   "id": "pecio",
+   "name": "Pecio del Arrecife",
+   "region": "bahia",
+   "kind": "misterio",
+   "pos": [
+    92,
+    216
+   ],
+   "faction": "neutral",
+   "text": "Restos del barco que trajo a los primeros pobladores. Los exploradores aún bucean buscando su bitácora."
+  },
+  {
+   "id": "puerta",
+   "name": "Puerta de la Muralla",
+   "region": "muralla",
+   "kind": "hito",
+   "pos": [
+    0,
+    -132
+   ],
+   "faction": "orden",
+   "text": "El único camino hacia las Cumbres. Durante La Última Luz, la Orden decide cuándo se abre."
+  },
+  {
+   "id": "torre-alba",
+   "name": "Torre del Alba",
+   "region": "muralla",
+   "kind": "lugar",
+   "pos": [
+    -112,
+    -132
+   ],
+   "faction": "orden",
+   "text": "La torre más occidental, junto al río. Lleva semanas sin relevo de guardia."
+  },
+  {
+   "id": "bastion",
+   "name": "Bastión de Hierro",
+   "region": "muralla",
+   "kind": "lugar",
+   "pos": [
+    48,
+    -100
+   ],
+   "faction": "orden",
+   "text": "Cuartel, armería y sala de mando de la Orden. Sus ballestas apuntan al norte… casi todas."
+  },
+  {
+   "id": "archivo",
+   "name": "Archivo de las Criptas",
+   "region": "cementerio",
+   "kind": "hito",
+   "pos": [
+    148,
+    -32
+   ],
+   "faction": "culto",
+   "text": "La cripta mayor guarda la crónica de cada temporada. Los cronistas escriben aquí lo que el resto olvida."
+  },
+  {
+   "id": "grieta",
+   "name": "La Grieta",
+   "region": "cementerio",
+   "kind": "misterio",
+   "pos": [
+    128,
+    20
+   ],
+   "faction": "culto",
+   "text": "Una fisura de cristal violeta que cruza el este hasta el mar. Crece con cada fase de la temporada."
+  },
+  {
+   "id": "altar",
+   "name": "Altar del Eco",
+   "region": "cementerio",
+   "kind": "lugar",
+   "pos": [
+    168,
+    -18
+   ],
+   "faction": "culto",
+   "text": "Al borde de la Grieta. El Culto dice que aquí se escucha la voz de los campeones caídos."
+  },
+  {
+   "id": "molinos",
+   "name": "Molinos de Poniente",
+   "region": "campos",
+   "kind": "lugar",
+   "pos": [
+    -146,
+    -24
+   ],
+   "faction": "neutral",
+   "text": "Tres molinos que muelen el grano de todo el valle. Si se paran, la comida cae en una semana."
+  },
+  {
+   "id": "acena",
+   "name": "Aceña del Río",
+   "region": "campos",
+   "kind": "lugar",
+   "pos": [
+    -74,
+    -60
+   ],
+   "faction": "neutral",
+   "text": "El molino de agua junto al Puente. Su rueda solo se detiene cuando alguien corta el río aguas arriba."
+  },
+  {
+   "id": "campamento",
+   "name": "Campamento de los Exploradores",
+   "region": "bosque",
+   "kind": "lugar",
+   "pos": [
+    124,
+    104
+   ],
+   "faction": "neutral",
+   "text": "Tiendas, una hoguera y una mesa llena de mapas que se contradicen."
+  },
+  {
+   "id": "atalaya",
+   "name": "Atalaya del Bosque",
+   "region": "bosque",
+   "kind": "lugar",
+   "pos": [
+    160,
+    140
+   ],
+   "faction": "neutral",
+   "text": "Desde lo alto se ve la bahía, la Grieta y la Muralla a la vez. Quien la ocupa, ve venir todo."
+  },
+  {
+   "id": "arena",
+   "name": "Arena de la Última Luz",
+   "region": "cumbres",
+   "kind": "hito",
+   "pos": [
+    0,
+    -196
+   ],
+   "faction": "neutral",
+   "text": "Dieciséis columnas en círculo. Al final de la temporada, la Luz se cierra aquí sobre los últimos campeones."
+  },
+  {
+   "id": "paso-helado",
+   "name": "Paso Helado",
+   "region": "cumbres",
+   "kind": "lugar",
+   "pos": [
+    -36,
+    -168
+   ],
+   "faction": "neutral",
+   "text": "El sendero en zigzag que sube de la Puerta a la Arena. En colapso, la nieve borra las huellas en minutos."
+  },
+  {
+   "id": "puente-molino",
+   "name": "Puente del Molino",
+   "region": "campos",
+   "kind": "paso",
+   "pos": [
+    -88,
+    -36
+   ],
+   "faction": "orden",
+   "contested": [
+    "gremio",
+    "orden"
+   ],
+   "text": "Paso disputado. Une los campos con la Muralla. Hoy ondea la bandera de la Orden; el Gremio quiere el peaje."
+  },
+  {
+   "id": "camino-lapidas",
+   "name": "Camino de las Lápidas",
+   "region": "cementerio",
+   "kind": "paso",
+   "pos": [
+    84,
+    -80
+   ],
+   "faction": "culto",
+   "contested": [
+    "orden",
+    "culto"
+   ],
+   "text": "Paso disputado. La ruta entre el Bastión y el Cementerio, flanqueada de tumbas. El Culto la reclama como suelo sagrado."
+  },
+  {
+   "id": "cala",
+   "name": "Cala de los Contrabandistas",
+   "region": "bosque",
+   "kind": "paso",
+   "pos": [
+    202,
+    50
+   ],
+   "faction": "gremio",
+   "contested": [
+    "gremio",
+    "culto"
+   ],
+   "text": "Paso disputado. Una playa escondida bajo el acantilado. Lo que desembarca aquí no paga peaje en los Muelles."
+  }
+ ],
+ "river": [
+  [
+   -36,
+   -244
+  ],
+  [
+   -48,
+   -160
+  ],
+  [
+   -72,
+   -100
+  ],
+  [
+   -88,
+   -44
+  ],
+  [
+   -84,
+   10
+  ],
+  [
+   -60,
+   70
+  ],
+  [
+   -24,
+   116
+  ],
+  [
+   4,
+   160
+  ]
+ ],
+ "rift": [
+  [
+   104,
+   28
+  ],
+  [
+   152,
+   4
+  ],
+  [
+   200,
+   -20
+  ]
+ ],
+ "roads": [
+  [
+   [
+    0,
+    -16
+   ],
+   [
+    0,
+    -60
+   ],
+   [
+    4,
+    -100
+   ],
+   [
+    0,
+    -132
+   ]
+  ],
+  [
+   [
+    0,
+    -132
+   ],
+   [
+    -16,
+    -152
+   ],
+   [
+    -36,
+    -168
+   ],
+   [
+    -12,
+    -180
+   ],
+   [
+    0,
+    -192
+   ]
+  ],
+  [
+   [
+    4,
+    16
+   ],
+   [
+    8,
+    60
+   ],
+   [
+    8,
+    96
+   ],
+   [
+    8,
+    124
+   ]
+  ],
+  [
+   [
+    -16,
+    4
+   ],
+   [
+    -48,
+    8
+   ],
+   [
+    -84,
+    8
+   ],
+   [
+    -120,
+    12
+   ],
+   [
+    -148,
+    12
+   ]
+  ],
+  [
+   [
+    -140,
+    -12
+   ],
+   [
+    -112,
+    -28
+   ],
+   [
+    -88,
+    -36
+   ],
+   [
+    -60,
+    -60
+   ],
+   [
+    -28,
+    -96
+   ]
+  ],
+  [
+   [
+    16,
+    -8
+   ],
+   [
+    56,
+    -28
+   ],
+   [
+    104,
+    -44
+   ]
+  ],
+  [
+   [
+    44,
+    -88
+   ],
+   [
+    68,
+    -84
+   ],
+   [
+    88,
+    -76
+   ],
+   [
+    104,
+    -52
+   ]
+  ],
+  [
+   [
+    12,
+    12
+   ],
+   [
+    52,
+    48
+   ],
+   [
+    92,
+    80
+   ],
+   [
+    124,
+    104
+   ]
+  ],
+  [
+   [
+    124,
+    104
+   ],
+   [
+    164,
+    80
+   ],
+   [
+    200,
+    52
+   ]
+  ],
+  [
+   [
+    160,
+    -32
+   ],
+   [
+    168,
+    -18
+   ]
+  ],
+  [
+   [
+    32,
+    120
+   ],
+   [
+    80,
+    124
+   ],
+   [
+    108,
+    116
+   ]
+  ],
+  [
+   [
+    124,
+    104
+   ],
+   [
+    160,
+    140
+   ]
+  ]
+ ],
+ "fields": [
+  {
+   "c": [
+    -172,
+    -8
+   ],
+   "w": 28,
+   "d": 18,
+   "rot": 0.1,
+   "crop": "trigo"
+  },
+  {
+   "c": [
+    -124,
+    36
+   ],
+   "w": 22,
+   "d": 16,
+   "rot": -0.2,
+   "crop": "huerta"
+  },
+  {
+   "c": [
+    -172,
+    44
+   ],
+   "w": 24,
+   "d": 20,
+   "rot": 0.3,
+   "crop": "trigo"
+  },
+  {
+   "c": [
+    -160,
+    -44
+   ],
+   "w": 24,
+   "d": 16,
+   "rot": 0,
+   "crop": "trigo"
+  },
+  {
+   "c": [
+    -120,
+    -52
+   ],
+   "w": 18,
+   "d": 14,
+   "rot": 0.5,
+   "crop": "huerta"
+  },
+  {
+   "c": [
+    -196,
+    16
+   ],
+   "w": 14,
+   "d": 22,
+   "rot": 0,
+   "crop": "huerta"
+  }
+ ]
+}

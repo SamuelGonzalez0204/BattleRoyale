@@ -22,8 +22,17 @@ from app.schemas.admin import (
     ReportModerationIn,
     SeasonAdminOut,
 )
+from app.schemas.battle_royale import BrStateOut
 from app.schemas.decision import DecisionOut
 from app.services import moderation
+from app.services.battle_royale.lifecycle import (
+    EventAlreadyExists,
+    NotEnoughChampions,
+    event_for_season,
+    start_event,
+)
+from app.services.battle_royale.rounds import NoActiveRound, resolve_current_round
+from app.services.battle_royale.state import build_state
 from app.services.daily_decision import DecisionHasVotes, EmergencyDecision, set_emergency_decision
 from app.services.season import FinalPhaseReached, following_phase, force_advance_phase, get_active_season
 
@@ -189,3 +198,36 @@ def review_handle(
         db.rollback()
         raise _conflict(exc) from exc
     return _handle_out(user)
+
+
+# --- La Última Luz -----------------------------------------------------------
+
+
+@router.post("/br/start", response_model=BrStateOut, status_code=status.HTTP_201_CREATED)
+@limiter.limit(ADMIN_LIMIT, key_func=user_or_ip_key)
+def start_battle_royale(
+    request: Request, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> BrStateOut:
+    """Arranca ya La Última Luz de la temporada activa, esté en la fase que esté."""
+    try:
+        season = get_active_season(db)
+        start_event(db, season, datetime.now(timezone.utc))
+    except (ValueError, EventAlreadyExists, NotEnoughChampions) as exc:
+        raise _conflict(exc) from exc
+    return build_state(db, admin)
+
+
+@router.post("/br/resolve-round", response_model=BrStateOut)
+@limiter.limit(ADMIN_LIMIT, key_func=user_or_ip_key)
+def resolve_battle_royale_round(
+    request: Request, db: Session = Depends(get_db), admin: User = Depends(require_admin)
+) -> BrStateOut:
+    """Resuelve ya el duelo de la ronda en curso, sin esperar al cierre de las 23:59."""
+    try:
+        event = event_for_season(db, get_active_season(db))
+        if event is None:
+            raise NoActiveRound("La temporada activa no tiene Última Luz")
+        resolve_current_round(db, event.id, datetime.now(timezone.utc), force=True)
+    except (ValueError, NoActiveRound) as exc:
+        raise _conflict(exc) from exc
+    return build_state(db, admin)

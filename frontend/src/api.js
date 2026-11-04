@@ -28,7 +28,9 @@ export async function apiFetch(path, options = {}) {
 
   const data = await res.json().catch(() => null);
   if (!res.ok) {
-    throw new Error(errorMessage(data, res.status));
+    const error = new Error(errorMessage(data, res.status));
+    error.status = res.status;
+    throw error;
   }
   return data;
 }

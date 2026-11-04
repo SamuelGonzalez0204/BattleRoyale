@@ -70,10 +70,23 @@ def award_chispas(
     return granted
 
 
+def _locked_balance(db: Session, user: User) -> int:
+    """Lee el saldo con SELECT ... FOR UPDATE: otro gasto concurrente de la misma
+    cuenta espera aquí hasta que esta transacción haga commit o rollback."""
+    db.flush()
+    balance = db.execute(select(User.chispas).where(User.id == user.id).with_for_update()).scalar_one()
+    return int(balance)
+
+
 def spend_chispas(db: Session, user: User, amount: int, reason: str) -> None:
+    """Gasta Chispas sin dejar nunca saldo negativo. Bloquea la fila del usuario y
+    decide con el saldo leído bajo el bloqueo (no con el objeto en memoria), así dos
+    peticiones simultáneas no pueden gastar lo mismo dos veces. No hace commit."""
     if amount <= 0:
         raise ValueError("amount debe ser positivo")
-    if user.chispas < amount:
-        raise InsufficientChispas(f"El usuario tiene {user.chispas} Chispas, pide gastar {amount}")
-    user.chispas -= amount
+    balance = _locked_balance(db, user)
+    user.chispas = balance
+    if balance < amount:
+        raise InsufficientChispas(f"El usuario tiene {balance} Chispas, pide gastar {amount}")
+    user.chispas = balance - amount
     db.add(ChispaTransaction(user_id=user.id, amount=-amount, reason=reason))

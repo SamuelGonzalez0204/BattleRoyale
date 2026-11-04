@@ -11,13 +11,24 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from app.api.routes import admin, augurio, auth, decisions, factions, reports, users, world
+from app.api.routes import (
+    admin,
+    augurio,
+    auth,
+    battle_royale,
+    decisions,
+    factions,
+    reports,
+    sponsor,
+    users,
+    world,
+)
 from app.core.config import ensure_production_ready, get_settings
 from app.core.logging import REQUEST_ID_HEADER, RequestContextMiddleware, configure_logging
 from app.core.rate_limit import limiter, rate_limit_exceeded_handler
 from app.db.session import SessionLocal, get_db
 from app.services.daily_cycle import run_daily_close
-from app.services.daily_decision import ensure_decision_for_today
+from app.services.daily_decision import BattleRoyaleInProgress, ensure_decision_for_today
 from app.services.season import get_active_season
 
 settings = get_settings()
@@ -40,6 +51,8 @@ def generate_daily_decision_job() -> None:
         ensure_decision_for_today(db, season)
     except ValueError:
         logger.info("Sin temporada activa o sin plantillas: no se generó decisión diaria")
+    except BattleRoyaleInProgress:
+        logger.info("La Última Luz está en curso: no se genera decisión diaria")
     finally:
         db.close()
 
@@ -51,10 +64,11 @@ def close_daily_decision_job() -> None:
     try:
         result = run_daily_close(db)
         logger.info(
-            "Cierre diario: %d decisiones cerradas, fase=%s (cambio=%s)",
+            "Cierre diario: %d decisiones cerradas, fase=%s (cambio=%s), última luz=%s",
             result.closed_decisions,
             result.phase.value,
             result.phase_changed,
+            result.battle_royale.value if result.battle_royale else "-",
         )
     except ValueError:
         logger.info("Sin temporada activa o sin estado de mundo: no se cerró la decisión diaria")
@@ -106,6 +120,8 @@ app.include_router(factions.router)
 app.include_router(world.router)
 app.include_router(decisions.router)
 app.include_router(reports.router)
+app.include_router(battle_royale.router)
+app.include_router(sponsor.router)
 app.include_router(admin.router)
 
 

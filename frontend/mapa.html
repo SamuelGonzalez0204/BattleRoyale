@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>El Valle de la Grieta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="/src/map/map.css" />
+  <style>
+    html, body { height: 100%; margin: 0; background: #0d131b; overflow: hidden; }
+    #app { position: fixed; inset: 0; }
+    .map-back {
+      position: fixed; z-index: 30; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 14px); transform: translateX(-50%);
+      font: 500 13px "Alegreya Sans", system-ui, sans-serif; color: #ece0c6; text-decoration: none;
+      background: rgba(15, 22, 32, 0.88); border: 1px solid rgba(236, 224, 198, 0.15); border-radius: 6px; padding: 6px 12px;
+    }
+    .map-back:focus-visible { outline: 2px solid #d2ad66; outline-offset: 2px; }
+    @media (max-width: 760px) { .map-back { left: auto; right: 16px; transform: none; } }
+  </style>
+</head>
+<body>
+  <main id="app" aria-label="Explorador del mapa"></main>
+  <a class="map-back" href="/poblado.html">← Poblado</a>
+  <script type="module" src="/src/mapa.js"></script>
+</body>
+</html>

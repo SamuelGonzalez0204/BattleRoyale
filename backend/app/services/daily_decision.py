@@ -12,9 +12,17 @@ from app.models.decision_template import DecisionTemplate
 from app.models.season import Season
 from app.models.user import UserRole
 from app.models.world import WorldState
+from app.services.battle_royale.lifecycle import event_blocks_decisions
 from app.services.roles import assign_roles_to_unassigned
 from app.services.season import world_stats
 from app.services.world_effects import apply_effects, validate_effects
+
+
+class BattleRoyaleInProgress(Exception):
+    """La Última Luz está en curso (o esperando sello): no hay decisión diaria."""
+
+
+BATTLE_ROYALE_IN_PROGRESS = "La Última Luz está en curso: hoy no hay decisión diaria"
 
 
 def _now_utc() -> datetime:
@@ -85,9 +93,12 @@ def ensure_decision_for_today(
     """Idempotente: si ya existe la decisión de hoy la devuelve tal cual;
     si no, la crea a partir de la siguiente plantilla sin usar del banco.
     Antes, cierra cualquier decisión de días anteriores que siga abierta
-    (fallback perezoso por si el job de las 23:59 no llegó a correr)."""
+    (fallback perezoso por si el job de las 23:59 no llegó a correr).
+    Mientras haya una Última Luz sin sellar lanza BattleRoyaleInProgress."""
     today = today or _now_utc().date()
     close_open_decisions(db, season, before=today, now=now)
+    if event_blocks_decisions(db, season):
+        raise BattleRoyaleInProgress(BATTLE_ROYALE_IN_PROGRESS)
 
     existing = _find_decision(db, season, today)
     if existing is not None:

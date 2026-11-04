@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Última Luz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600;700&family=IM+Fell+English+SC&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+  <link rel="stylesheet" href="/src/map/map.css" />
+  <link rel="stylesheet" href="/src/br/br.css" />
+</head>
+<body>
+  <div class="wrap br-wrap">
+    <header class="br-header">
+      <div>
+        <h1>La Última Luz</h1>
+        <p id="status-line" class="muted" aria-live="polite">Cargando…</p>
+      </div>
+      <div class="br-me">
+        <span id="who" class="muted"></span>
+        <span id="chispas" class="pill br-chispas" title="Tus Chispas"></span>
+      </div>
+      <nav class="br-nav" aria-label="Secciones">
+        <a href="/poblado.html">Poblado</a>
+        <a href="/mapa.html">Mapa</a>
+        <a href="/battle-royale.html" aria-current="page">La Última Luz</a>
+      </nav>
+    </header>
+
+    <p id="page-error" class="br-error" role="alert" hidden></p>
+    <p id="notice" class="br-notice" role="status" hidden></p>
+
+    <section id="map" class="br-map" aria-label="Mapa del valle"></section>
+
+    <div id="panels" class="br-panels" aria-busy="true">
+      <section id="intro" class="card br-card" hidden></section>
+      <section id="duel" class="card br-card br-duel" hidden></section>
+      <section id="champions" class="card br-card br-wide" hidden></section>
+      <section id="last-round" class="card br-card br-wide" hidden></section>
+      <section id="winner" class="card br-card" hidden></section>
+      <section id="seal" class="card br-card" hidden></section>
+      <section id="sponsor" class="card br-card br-wide" hidden></section>
+    </div>
+  </div>
+  <script type="module" src="/src/battle-royale.js"></script>
+</body>
+</html>
