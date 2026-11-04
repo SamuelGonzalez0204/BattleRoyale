@@ -16,6 +16,13 @@ class UserRole(str, enum.Enum):
     explorador = "explorador"
 
 
+class HandleVerificationStatus(str, enum.Enum):
+    none = "none"
+    pending = "pending"
+    verified = "verified"
+    rejected = "rejected"
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -31,6 +38,17 @@ class User(Base):
     chispas: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    # Verificación manual del handle de IG/TikTok (la revisión llega con el panel de admin, D4)
+    handle_verification_status: Mapped[HandleVerificationStatus] = mapped_column(
+        Enum(HandleVerificationStatus, name="handle_verification_status"),
+        default=HandleVerificationStatus.none,
+        server_default=HandleVerificationStatus.none.value,
+        nullable=False,
+    )
+    handle_verification_code: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    handle_verification_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    handle_verification_reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     faction: Mapped["Faction | None"] = relationship(back_populates="users")  # noqa: F821

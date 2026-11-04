@@ -11,6 +11,8 @@ export default defineConfig({
         main: resolve(__dirname, "index.html"),
         augurio: resolve(__dirname, "augurio.html"),
         poblado: resolve(__dirname, "poblado.html"),
+        verificar: resolve(__dirname, "verificar.html"),
+        recuperar: resolve(__dirname, "recuperar.html"),
       },
     },
   },

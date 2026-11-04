@@ -20,8 +20,31 @@ async function init() {
 
   document.getElementById("who").textContent = `@${me.handle} · ${me.faction_slug}`;
   document.getElementById("chispas").textContent = me.chispas;
+  showVerifyNotice(me);
 
   await Promise.all([loadWorld(), loadFactions(me.faction_slug), loadDecision()]);
+}
+
+function showVerifyNotice(me) {
+  if (me.is_verified) return;
+  const notice = document.getElementById("verify-notice");
+  const button = document.getElementById("verify-resend");
+  const statusBox = document.getElementById("verify-status");
+  notice.style.display = "flex";
+
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    statusBox.classList.remove("error");
+    statusBox.textContent = "Enviando…";
+    try {
+      const { message } = await apiFetch("/api/auth/verify/resend", { method: "POST" });
+      statusBox.textContent = message;
+    } catch (err) {
+      statusBox.classList.add("error");
+      statusBox.textContent = err.message;
+      button.disabled = false;
+    }
+  });
 }
 
 async function loadWorld() {

@@ -28,10 +28,19 @@ export async function apiFetch(path, options = {}) {
 
   const data = await res.json().catch(() => null);
   if (!res.ok) {
-    const message = (data && data.detail) || `Error ${res.status}`;
-    throw new Error(message);
+    throw new Error(errorMessage(data, res.status));
   }
   return data;
+}
+
+// FastAPI devuelve `detail` como texto o, en errores de validación (422), como lista.
+function errorMessage(data, status) {
+  const detail = data && data.detail;
+  if (typeof detail === "string") return detail;
+  if (Array.isArray(detail) && detail.length) {
+    return detail.map((item) => String(item.msg || "").replace(/^Value error, /, "")).join(" · ");
+  }
+  return `Error ${status}`;
 }
 
 export function requireAuthOrRedirect() {

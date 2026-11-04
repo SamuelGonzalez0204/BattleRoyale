@@ -75,3 +75,76 @@ def db(db_engine: Engine) -> Generator[Session, None, None]:
         if outer.is_active:
             outer.rollback()
         connection.close()
+
+
+# --- Fixtures HTTP compartidas (Fase C) -------------------------------------
+
+
+class RecordingMailBackend:
+    """Backend de correo falso: guarda los mensajes en memoria en vez de enviarlos."""
+
+    def __init__(self) -> None:
+        self.sent: list = []
+
+    def send(self, message) -> None:
+        self.sent.append(message)
+
+
+@pytest.fixture(autouse=True)
+def _reset_rate_limits() -> Generator[None, None, None]:
+    # El limitador guarda contadores en memoria a nivel de proceso: cada test empieza limpio.
+    from app.core.rate_limit import limiter
+
+    limiter.reset()
+    yield
+    limiter.reset()
+
+
+@pytest.fixture()
+def outbox() -> RecordingMailBackend:
+    return RecordingMailBackend()
+
+
+@pytest.fixture()
+def api(db: Session, outbox: RecordingMailBackend):
+    """TestClient con get_db y get_mail_backend sobrescritos (BD de tests + buzón falso)."""
+    from fastapi.testclient import TestClient
+
+    from app.db.session import get_db
+    from app.main import app
+    from app.services.mail import get_mail_backend
+
+    def _override_get_db() -> Generator[Session, None, None]:
+        yield db
+
+    app.dependency_overrides[get_db] = _override_get_db
+    app.dependency_overrides[get_mail_backend] = lambda: outbox
+    try:
+        # Sin `with`: no arranca el lifespan, así el scheduler no toca la BD real.
+        yield TestClient(app)
+    finally:
+        app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def make_user(db: Session):
+    """Fábrica de usuarios persistidos. Devuelve (user, cabeceras Authorization)."""
+    import uuid
+
+    from app.core.security import create_access_token, hash_password
+    from app.models.user import User
+
+    def _make(*, password: str = "contraseña-segura", is_verified: bool = False, chispas: int = 0):
+        tag = uuid.uuid4().hex[:10]
+        user = User(
+            email=f"{tag}@example.com",
+            handle=f"u_{tag}",
+            hashed_password=hash_password(password),
+            is_verified=is_verified,
+            chispas=chispas,
+        )
+        db.add(user)
+        db.commit()
+        return user, {"Authorization": f"Bearer {create_access_token(str(user.id))}"}
+
+    return _make

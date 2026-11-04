@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Ciclo — Verificar email</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div class="center-screen">
+    <div class="card" style="max-width: 420px; width: 100%; display: flex; flex-direction: column; gap: 16px;">
+      <div>
+        <div class="muted" style="font-size: 13px; letter-spacing: 3px; text-transform: uppercase;">El Ciclo</div>
+        <h1 style="font-size: 22px; margin-top: 6px;">Verificar email</h1>
+      </div>
+      <p id="result" class="muted" style="margin: 0;">Comprobando el enlace…</p>
+      <div id="error" class="error" style="display: none;"></div>
+      <a id="next" class="btn" href="/index.html" style="display: none; text-align: center; text-decoration: none;">Ir a El Ciclo</a>
+    </div>
+  </div>
+
+  <script type="module" src="/src/verificar.js"></script>
+</body>
+</html>

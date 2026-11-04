@@ -5,13 +5,18 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
 
-from app.api.routes import augurio, auth, decisions, factions, users, world
+from app.api.routes import augurio, auth, decisions, factions, reports, users, world
 from app.core.config import get_settings
+from app.core.rate_limit import limiter, rate_limit_exceeded_handler
 from app.db.session import SessionLocal
 from app.services.daily_cycle import run_daily_close
 from app.services.daily_decision import ensure_decision_for_today
 from app.services.season import get_active_season
+
+# Configuración mínima para que los logs INFO de la app (scheduler, mail) salgan por consola.
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
 settings = get_settings()
 logger = logging.getLogger("el_ciclo.scheduler")
@@ -75,6 +80,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="El Ciclo — API", version="0.1.0", lifespan=lifespan)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -90,6 +97,7 @@ app.include_router(augurio.router)
 app.include_router(factions.router)
 app.include_router(world.router)
 app.include_router(decisions.router)
+app.include_router(reports.router)
 
 
 @app.get("/api/health", tags=["health"])
