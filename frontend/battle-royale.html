@@ -16,17 +16,13 @@
     <header class="br-header">
       <div>
         <h1>La Última Luz</h1>
-        <p id="status-line" class="muted" aria-live="polite">Cargando…</p>
+        <p id="status-line" class="muted" aria-live="polite"><span class="spinner" aria-hidden="true"></span> Cargando…</p>
       </div>
       <div class="br-me">
         <span id="who" class="muted"></span>
         <span id="chispas" class="pill br-chispas" title="Tus Chispas"></span>
       </div>
-      <nav class="br-nav" aria-label="Secciones">
-        <a href="/poblado.html">Poblado</a>
-        <a href="/mapa.html">Mapa</a>
-        <a href="/battle-royale.html" aria-current="page">La Última Luz</a>
-      </nav>
+      <nav id="site-nav" class="br-nav" aria-label="Secciones"></nav>
     </header>
 
     <p id="page-error" class="br-error" role="alert" hidden></p>

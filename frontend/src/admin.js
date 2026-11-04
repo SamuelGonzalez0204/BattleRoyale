@@ -1,4 +1,5 @@
 import { apiFetch, getToken } from "./api.js";
+import { mountNav } from "./ui/nav.js";
 
 // El backend es quien protege /api/admin (403 sin permisos); esto solo decide qué se pinta.
 
@@ -238,4 +239,5 @@ async function init() {
   ]);
 }
 
+mountNav($("site-nav"), "admin");
 init();

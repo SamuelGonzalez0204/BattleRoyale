@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lore del Valle · El Ciclo</title>
+  <meta name="description" content="Regiones, lugares, crónica de decisiones y campeones de El Valle de la Grieta." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div class="wrap page">
+    <header class="page-header">
+      <div>
+        <h1>El Valle de la Grieta</h1>
+        <p class="muted">Lo que se sabe del valle: sus regiones, sus lugares y lo que ha decidido su gente.</p>
+      </div>
+    </header>
+    <nav id="site-nav" aria-label="Secciones"></nav>
+
+    <section class="card lore-card" aria-labelledby="season-h" id="season" aria-busy="true">
+      <h2 id="season-h">Temporada actual</h2>
+      <div id="season-body"><span class="skeleton" style="width: 60%;"></span><span class="skeleton" style="width: 90%;"></span></div>
+    </section>
+
+    <section aria-labelledby="factions-h" class="page" style="gap: 14px;">
+      <h2 id="factions-h">Facciones</h2>
+      <div id="factions" class="lore-grid" aria-busy="true"><span class="skeleton card" style="height: 110px;"></span></div>
+    </section>
+
+    <section aria-labelledby="regions-h" class="page" style="gap: 14px;">
+      <h2 id="regions-h">Regiones y lugares</h2>
+      <div id="regions" class="lore-grid" aria-busy="true"><span class="skeleton card" style="height: 220px;"></span></div>
+    </section>
+
+    <section class="card lore-card" aria-labelledby="chronicle-h">
+      <h2 id="chronicle-h">Crónica</h2>
+      <p class="muted" style="font-size: 13px;">Las últimas decisiones cerradas y lo que cambiaron en el valle.</p>
+      <div id="chronicle" aria-busy="true"><span class="skeleton"></span><span class="skeleton"></span></div>
+    </section>
+
+    <section class="card lore-card" aria-labelledby="winners-h">
+      <h2 id="winners-h">Ganadores de La Última Luz</h2>
+      <div id="winners" aria-busy="true"><span class="skeleton"></span></div>
+    </section>
+  </div>
+  <script type="module" src="/src/lore.js"></script>
+</body>
+</html>

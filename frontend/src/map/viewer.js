@@ -12,6 +12,7 @@ import { createControls } from './controls.js';
 import { createUi } from './ui.js';
 import { createMinimap } from './minimap.js';
 import { renderShell, resolveUi } from './shell.js';
+import { normalizeStats } from './growth.js';
 
 const LAYOUT_SEED = 20261103;
 const nextFrame = () => new Promise((r) => setTimeout(r, 20));
@@ -23,6 +24,7 @@ const nextFrame = () => new Promise((r) => setTimeout(r, 20));
  * @property {string} [title] @property {string} [subtitle]
  * @property {'aerial'|'walk'|'fly'} [mode='aerial'] @property {string[]} [modes]  modes offered in the control
  * @property {string} [phase='construccion'] @property {string[]} [fallenZones]
+ * @property {Record<string, number> | null} [worldStats]  poblacion/comida/moral/defensa/oro 0..100; null = full valley
  * @property {boolean} [globalKeys=true]  listen to the keyboard on window (false: only while focus is inside the viewer)
  * @property {(mode: string) => void} [onModeChange] @property {(phase: string) => void} [onPhaseChange]
  */
@@ -31,7 +33,8 @@ const nextFrame = () => new Promise((r) => setTimeout(r, 20));
  * @param {HTMLElement} container
  * @param {MapViewerOptions} [options]
  * @returns {{ ready: Promise<{failedModels: string[]}>, setPhase(p: string): void, setFallenZones(ids: string[]): void,
- *   focusRegion(id: string): void, setMode(m: string): void, dispose(): void }}
+ *   focusRegion(id: string): void, focusPlace(id: string): void, setWorldStats(s: Record<string, number> | null): void,
+ *   setMode(m: string): void, dispose(): void }}
  */
 export function createMapViewer(container, options = {}) {
   const base = options.assetBase ?? '/mapa/';
@@ -45,7 +48,7 @@ export function createMapViewer(container, options = {}) {
 
   const offs = [];
   const listen = (target, type, fn, opts) => { target.addEventListener(type, fn, opts); offs.push(() => target.removeEventListener(type, fn, opts)); };
-  const want = { phase: PHASE_IDS.includes(options.phase) ? options.phase : 'construccion', mode: modes.includes(options.mode) ? options.mode : modes[0], fallen: options.fallenZones ?? [], focus: null };
+  const want = { phase: PHASE_IDS.includes(options.phase) ? options.phase : 'construccion', mode: modes.includes(options.mode) ? options.mode : modes[0], fallen: options.fallenZones ?? [], focus: null, stats: options.worldStats ?? null };
   let disposed = false, live = null;
 
   const stage = createStage(dom.canvas, { reducedMotion });
@@ -88,7 +91,7 @@ export function createMapViewer(container, options = {}) {
   function assemble(DATA, T, P, gltfs) {
     const mixers = [];
     const terrain = buildTerrain(scene, T);
-    buildInstances(scene, P.batches, gltfs);
+    const inst = buildInstances(scene, P.batches, gltfs, P.thresholds);
     const effects = createEffects({ scene, T, DATA, gltfs, mixers, P, cur, reducedMotion });
     effects.runSpawns();
     const fog = createFallenFog(scene, T, DATA.regions);
@@ -106,8 +109,8 @@ export function createMapViewer(container, options = {}) {
     uiApi.buildMarkers(); uiApi.buildPlaceList(); uiApi.updateHelp();
     const minimap = dom.minimap ? createMinimap({ canvas: dom.minimap, coordsEl: dom.coords, T, DATA, listen, nav }) : null;
     minimap?.build();
-    const L = { DATA, T, terrain, effects, fog, nav, ui: uiApi, minimap };
-    applyFallen(L); nav.setMode(want.mode);
+    const L = { DATA, T, terrain, inst, effects, fog, nav, ui: uiApi, minimap };
+    applyFallen(L); applyStats(L); nav.setMode(want.mode);
     if (want.focus) focusOn(L, want.focus, true);
     startLoop(L);
     return L;
@@ -117,9 +120,17 @@ export function createMapViewer(container, options = {}) {
     const ids = normalizeFallen(want.fallen, L.DATA.regions);
     L.terrain.tintFallen(L.DATA.regions, ids); L.fog.setFallen(ids); L.ui.setFallen(ids); L.minimap?.setFallen(ids);
   }
+  /** World stats decide what is built (see growth.js): instanced counts, spawned models, banners and lights. */
+  function applyStats(L) {
+    const s = normalizeStats(want.stats);
+    L.inst.setGrowth(s); L.effects.setGrowth(s);
+  }
+  /** Frames a region, or a POI (and opens its card). Unknown ids are ignored. */
   function focusOn(L, id, instant = false) {
-    const r = L.DATA.regions.find((q) => q.id === id); if (!r) return;
-    L.nav.goTo(r.center[0], r.center[1], clamp(r.radius * 2.4, 90, 260), instant);
+    const r = L.DATA.regions.find((q) => q.id === id);
+    if (r) { L.nav.goTo(r.center[0], r.center[1], clamp(r.radius * 2.4, 90, 260), instant); return; }
+    const p = L.DATA.pois.find((q) => q.id === id); if (!p) return;
+    L.nav.goTo(p.pos[0], p.pos[1], 70, instant); L.ui.openById(p.id);
   }
 
   const _focus = new THREE.Vector3();
@@ -159,6 +170,8 @@ export function createMapViewer(container, options = {}) {
     },
     setFallenZones(ids) { want.fallen = Array.isArray(ids) ? [...ids] : []; if (live) applyFallen(live); },
     focusRegion(id) { want.focus = id; if (live) focusOn(live, id); },
+    focusPlace(id) { api.focusRegion(id); },
+    setWorldStats(stats) { want.stats = stats ? { ...stats } : null; if (live) applyStats(live); },
     setMode(mode) { if (!modes.includes(mode)) return; want.mode = mode; if (live) live.nav.setMode(mode); else pressed('mode', mode); },
     dispose() {
       if (disposed) return;

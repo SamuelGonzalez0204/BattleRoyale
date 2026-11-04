@@ -19,6 +19,9 @@ class DecisionOut(BaseModel):
     role_affinity: str | None = None
     closed: bool = False
     winner: str | None = None
+    # Fase E: región del mapa donde ocurre la decisión (None en las de emergencia).
+    region: str | None = None
+    region_name: str | None = None
 
 
 class VoteIn(BaseModel):

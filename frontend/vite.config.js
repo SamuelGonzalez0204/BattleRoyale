@@ -20,6 +20,8 @@ export default defineConfig({
         admin: resolve(__dirname, "admin.html"),
         mapa: resolve(__dirname, "mapa.html"),
         battleRoyale: resolve(__dirname, "battle-royale.html"),
+        ranking: resolve(__dirname, "ranking.html"),
+        lore: resolve(__dirname, "lore.html"),
       },
     },
   },

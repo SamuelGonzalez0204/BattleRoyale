@@ -177,6 +177,10 @@
   .mv .credits { display: none; }
   .mv .hint { bottom: calc(var(--gb) + 176px); }
 }
+/* Embedded viewers without the title: the stacked controls go back to the top edge. */
+@container mv (max-width: 760px) {
+  .mv:not(:has(> .brand)) .controls { top: var(--gt); }
+}
 @media (prefers-reduced-motion: reduce) {
   .mv .bar i { transition: none; }
 }

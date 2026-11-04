@@ -12,6 +12,6 @@ export const MSCALE = {
 export const NO_SHADOW = new Set(['proc/wheat', 'proc/veg', 'grave/candle-multiple', 'grave/grave', 'grave/grave-border', 'town/road', 'grave/road',
   'survival/grass', 'survival/grass-large', 'pirate/grass', 'pirate/grass-plant', 'pirate/grass-patch', 'pirate/patch-grass-foliage', 'pirate/patch-sand-foliage']);
 
-/** 'td/detail-crystal#glow' -> 'td/detail-crystal' */
-export const baseKey = (k) => k.split('#')[0];
+/** 'td/detail-crystal#glow' -> 'td/detail-crystal'; 'town/stall-red@oro' (growth batch) -> 'town/stall-red' */
+export const baseKey = (k) => k.split(/[#@]/)[0];
 export const kitScale = (k) => (KIT[baseKey(k).split('/')[0]] ?? 1) * (MSCALE[baseKey(k)] ?? 1);
