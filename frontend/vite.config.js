@@ -2,6 +2,10 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  test: {
+    include: ["src/**/*.test.js"],
+    environment: "node",
+  },
   server: {
     port: 5173,
   },
@@ -14,6 +18,8 @@ export default defineConfig({
         verificar: resolve(__dirname, "verificar.html"),
         recuperar: resolve(__dirname, "recuperar.html"),
         admin: resolve(__dirname, "admin.html"),
+        mapa: resolve(__dirname, "mapa.html"),
+        battleRoyale: resolve(__dirname, "battle-royale.html"),
       },
     },
   },
