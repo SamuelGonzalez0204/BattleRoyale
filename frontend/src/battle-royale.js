@@ -5,6 +5,8 @@ import {
   championsHtml, duelHtml, introHtml, lastRoundHtml, sealPickerHtml, sealWaitingHtml, sealedHtml, winnerHtml,
 } from "./br/panels.js";
 import { renderSponsor } from "./br/sponsor.js";
+import { mountNav } from "./ui/nav.js";
+import { toastError } from "./ui/toast.js";
 import { apiErrorText, clampSpend, formatCountdown, sections, statusLine, viewerConfig, voteWeight } from "./br/view.js";
 
 const $ = (id) => document.getElementById(id);
@@ -31,6 +33,7 @@ async function init() {
     window.location.href = "/augurio.html";
     return;
   }
+  mountNav($("site-nav"), "battle-royale", ctx.me);
   $("who").textContent = `@${ctx.me.handle} · ${ctx.me.faction_slug}`;
   setChispas(ctx.me.chispas);
   ctx.viewer = createMapViewer($("map"), {
@@ -39,7 +42,7 @@ async function init() {
     globalKeys: false,
     ui: { brand: false, phaseControl: false, places: false, help: false, credits: false },
   });
-  ctx.viewer.ready.catch(() => showPageError("No se pudo cargar el mapa 3D. El resto de la página sigue funcionando."));
+  ctx.viewer.ready.catch(() => toastError("No se pudo cargar el mapa 3D. El resto de la página sigue funcionando."));
   try {
     const world = await apiFetch("/api/world");
     ctx.worldPhase = world.phase;
