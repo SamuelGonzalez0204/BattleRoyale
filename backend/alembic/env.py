@@ -8,7 +8,9 @@ from app.db.base import Base
 from app.models import *  # noqa: F401,F403  (registra todos los modelos en Base.metadata)
 
 config = context.config
-config.set_main_option("sqlalchemy.url", get_settings().database_url)
+# Si quien invoca ya fijó una URL (p. ej. los tests contra battleroyale_test), se respeta.
+if not config.get_main_option("sqlalchemy.url"):
+    config.set_main_option("sqlalchemy.url", get_settings().database_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
