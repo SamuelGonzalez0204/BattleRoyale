@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ranking · El Ciclo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div class="wrap page">
+    <header class="page-header">
+      <div>
+        <h1>Ranking</h1>
+        <p class="muted">Quién lleva más Chispas y quién ha votado con más peso esta temporada.</p>
+      </div>
+      <span id="who" class="muted" style="font-size: 13px;"></span>
+    </header>
+    <nav id="site-nav" aria-label="Secciones"></nav>
+
+    <section class="card" style="display: flex; flex-direction: column; gap: 16px;" aria-labelledby="rank-title">
+      <h2 id="rank-title" class="sr-only">Tabla del ranking</h2>
+      <div role="tablist" class="tabs" aria-label="Tipo de ranking" id="scope-tabs"></div>
+      <div class="chip-row" role="group" aria-label="Filtrar por facción" id="faction-chips"></div>
+      <p id="me-row" hidden class="pill" style="border: 1px solid var(--accent); color: var(--ink); align-self: flex-start;" aria-live="polite"></p>
+      <div id="rank-panel" role="tabpanel" aria-busy="true"></div>
+    </section>
+  </div>
+  <script type="module" src="/src/ranking.js"></script>
+</body>
+</html>
