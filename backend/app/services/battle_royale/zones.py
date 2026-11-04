@@ -5,20 +5,14 @@ bahia → campos → bosque → cementerio → muralla → plaza (6 rondas). Las
 Heladas (`cumbres`) son la Arena: nunca caen y acogen la ronda final, la 7.
 """
 
+from app.data.regions import REGION_NAMES
+
 ARENA = "cumbres"
 FALL_ORDER: tuple[str, ...] = ("bahia", "campos", "bosque", "cementerio", "muralla", "plaza")
 ZONE_IDS: tuple[str, ...] = (*FALL_ORDER, ARENA)
 TOTAL_ROUNDS = len(ZONE_IDS)
 
-ZONE_NAMES: dict[str, str] = {
-    "plaza": "Plaza del Ciclo",
-    "bahia": "Bahía del Gremio",
-    "muralla": "Muralla del Norte",
-    "cementerio": "Cementerio de la Grieta",
-    "campos": "Campos y Molinos",
-    "bosque": "Bosque de los Exploradores",
-    "cumbres": "Cumbres Heladas",
-}
+ZONE_NAMES: dict[str, str] = dict(REGION_NAMES)
 
 
 def zone_for_round(round_number: int) -> str:

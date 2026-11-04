@@ -31,6 +31,14 @@ def get_active_season(db: Session) -> Season:
     return season
 
 
+def find_active_season(db: Session) -> Season | None:
+    """Como get_active_season, pero None en vez de error si no hay temporada activa."""
+    try:
+        return get_active_season(db)
+    except ValueError:
+        return None
+
+
 def get_world_state(db: Session, season: Season) -> WorldState:
     state = db.query(WorldState).filter(WorldState.season_id == season.id).first()
     if state is None:

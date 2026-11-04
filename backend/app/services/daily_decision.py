@@ -15,6 +15,7 @@ from app.models.world import WorldState
 from app.services.battle_royale.lifecycle import event_blocks_decisions
 from app.services.roles import assign_roles_to_unassigned
 from app.services.season import world_stats
+from app.services.template_selection import next_template
 from app.services.world_effects import apply_effects, validate_effects
 
 
@@ -53,22 +54,6 @@ def pick_winner(votes_a: int, votes_b: int) -> str | None:
     return "b" if votes_b > votes_a else "a"
 
 
-def _next_template(db: Session) -> DecisionTemplate | None:
-    template = (
-        db.query(DecisionTemplate)
-        .filter(DecisionTemplate.used.is_(False))
-        .order_by(DecisionTemplate.order.asc())
-        .first()
-    )
-    if template is not None:
-        return template
-
-    # Se agotó el banco de preguntas: se recicla entero y se vuelve a empezar.
-    db.query(DecisionTemplate).update({DecisionTemplate.used: False})
-    db.flush()
-    return db.query(DecisionTemplate).order_by(DecisionTemplate.order.asc()).first()
-
-
 def _find_decision(db: Session, season: Season, day: date) -> Decision | None:
     return db.query(Decision).filter(Decision.season_id == season.id, Decision.day == day).first()
 
@@ -84,6 +69,8 @@ def _decision_from_template(season: Season, template: DecisionTemplate, day: dat
         effects_a=dict(template.effects_a or {}),
         effects_b=dict(template.effects_b or {}),
         role_affinity=template.role_affinity,
+        region=template.region,
+        template_id=template.id,
     )
 
 
@@ -91,7 +78,7 @@ def ensure_decision_for_today(
     db: Session, season: Season, today: date | None = None, now: datetime | None = None
 ) -> Decision:
     """Idempotente: si ya existe la decisión de hoy la devuelve tal cual;
-    si no, la crea a partir de la siguiente plantilla sin usar del banco.
+    si no, la crea con la plantilla que elige template_selection (fase y región).
     Antes, cierra cualquier decisión de días anteriores que siga abierta
     (fallback perezoso por si el job de las 23:59 no llegó a correr).
     Mientras haya una Última Luz sin sellar lanza BattleRoyaleInProgress."""
@@ -104,12 +91,11 @@ def ensure_decision_for_today(
     if existing is not None:
         return existing
 
-    template = _next_template(db)
+    template = next_template(db, season, today)
     if template is None:
-        raise ValueError("No hay plantillas de decisión configuradas todavía")
+        raise ValueError("No hay plantillas de decisión para la fase actual")
 
     decision = _decision_from_template(season, template, today)
-    template.used = True
     db.add(decision)
 
     try:
@@ -204,6 +190,9 @@ def _fill_decision(decision: Decision, content: EmergencyDecision, day: date) ->
     decision.effects_a = dict(content.effects_a)
     decision.effects_b = dict(content.effects_b)
     decision.role_affinity = content.role_affinity
+    # Escrita a mano: no sale del banco ni está anclada a una región.
+    decision.region = None
+    decision.template_id = None
     decision.closes_at = _end_of_day_utc(day)
     # Sin votos no se aplicó ningún efecto, así que reabrirla es seguro.
     decision.closed_at = None

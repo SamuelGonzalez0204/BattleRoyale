@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.data.regions import region_name
 from app.db.session import get_db
 from app.models.decision import Decision, Vote
 from app.models.user import User
@@ -42,6 +43,8 @@ def decision_out(db: Session, decision: Decision, my_vote: str | None) -> Decisi
         role_affinity=decision.role_affinity.value if decision.role_affinity else None,
         closed=decision.is_closed,
         winner=decision.winner,
+        region=decision.region,
+        region_name=region_name(decision.region),
     )
 
 

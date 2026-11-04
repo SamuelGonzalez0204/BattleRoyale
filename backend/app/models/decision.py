@@ -1,11 +1,24 @@
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, Enum, ForeignKey, Integer, String, UniqueConstraint, func
+from sqlalchemy import (
+    CheckConstraint,
+    Date,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    UniqueConstraint,
+    func,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
+from app.models.decision_template import REGION_CHECK
 from app.models.user import UserRole
 
 
@@ -13,7 +26,12 @@ class Decision(Base):
     """La decisión diaria que la web abre, independiente del calendario de vídeos."""
 
     __tablename__ = "decisions"
-    __table_args__ = (UniqueConstraint("season_id", "day", name="uq_decision_season_day"),)
+    __table_args__ = (
+        UniqueConstraint("season_id", "day", name="uq_decision_season_day"),
+        CheckConstraint(f"region IS NULL OR {REGION_CHECK}", name="ck_decision_region"),
+        Index("ix_decisions_template_day", "template_id", "day"),
+        Index("ix_decisions_closed_day", "day", postgresql_where=text("closed_at IS NOT NULL")),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     season_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("seasons.id"))
@@ -29,6 +47,13 @@ class Decision(Base):
     effects_b: Mapped[dict[str, int]] = mapped_column(JSONB, default=dict, nullable=False)
     role_affinity: Mapped[UserRole | None] = mapped_column(Enum(UserRole, name="user_role"), nullable=True)
 
+    # Fase E: región del mapa (copiada de la plantilla) y plantilla de origen.
+    # Ambas NULL en decisiones de emergencia escritas a mano por un admin.
+    region: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    template_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("decision_templates.id"), nullable=True
+    )
+
     # Cierre: None mientras sigue abierta. winner es "a" | "b" | None (nadie votó).
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     winner: Mapped[str | None] = mapped_column(String(1), nullable=True)
@@ -42,7 +67,10 @@ class Vote(Base):
     """Un voto por usuario y decisión; el peso extra sale de gastar Chispas."""
 
     __tablename__ = "votes"
-    __table_args__ = (UniqueConstraint("decision_id", "user_id", name="uq_vote_decision_user"),)
+    __table_args__ = (
+        UniqueConstraint("decision_id", "user_id", name="uq_vote_decision_user"),
+        Index("ix_votes_user_decision", "user_id", "decision_id"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     decision_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("decisions.id"))
