@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { NO_SHADOW, baseKey, kitScale } from './kits.js';
+import { moralLight, sortByThreshold, visibleCount } from './growth.js';
 
 const pad4 = (n) => (n + 3) & ~3;
 const LOAD_CONCURRENCY = 10;
@@ -44,16 +45,23 @@ export async function loadAll(base, keys, onProgress = () => {}, isCancelled = (
   return { gltfs, fails };
 }
 
-function partsOf(key, gltfs, glowMats) {
-  if (key === 'proc/wheat') return [{ g: new THREE.ConeGeometry(0.16, 0.95, 5).translate(0, 0.47, 0), m: new THREE.MeshStandardMaterial({ color: 0xd8b350, roughness: 1, flatShading: true }) }];
-  if (key === 'proc/veg') return [{ g: new THREE.IcosahedronGeometry(0.34, 0).translate(0, 0.22, 0), m: new THREE.MeshStandardMaterial({ color: 0x4f8f3a, roughness: 1, flatShading: true }) }];
-  const g = gltfs.get(baseKey(key)); if (!g) return [];
+const LANTERN = 'town/lantern';
+
+function partsOf(key, gltfs, glowMats, lanternMats) {
+  const base = baseKey(key);
+  if (base === 'proc/wheat') return [{ g: new THREE.ConeGeometry(0.16, 0.95, 5).translate(0, 0.47, 0), m: new THREE.MeshStandardMaterial({ color: 0xd8b350, roughness: 1, flatShading: true }) }];
+  if (base === 'proc/veg') return [{ g: new THREE.IcosahedronGeometry(0.34, 0).translate(0, 0.22, 0), m: new THREE.MeshStandardMaterial({ color: 0x4f8f3a, roughness: 1, flatShading: true }) }];
+  const g = gltfs.get(base); if (!g) return [];
   g.scene.updateMatrixWorld(true);
   const out = [];
   g.scene.traverse((o) => {
     if (!o.isMesh) return;
     let m = o.material;
-    if (key.endsWith('#glow')) {
+    if (base === LANTERN) { // lanterns glow with moral: one shared emissive clone per source material
+      if (!lanternMats.has(m)) { const lm = m.clone(); lm.emissive = new THREE.Color(0xffa94d); lm.emissiveIntensity = moralLight(100).lantern; lanternMats.set(m, lm); }
+      m = lanternMats.get(m);
+    }
+    if (key.split('@')[0].endsWith('#glow')) {
       if (!glowMats.has(m)) { const gm = m.clone(); gm.emissive = new THREE.Color(0x9b5cff); gm.emissiveIntensity = 0.6; glowMats.set(m, gm); }
       m = glowMats.get(m);
     }
@@ -62,17 +70,33 @@ function partsOf(key, gltfs, glowMats) {
   return out;
 }
 
-/** One InstancedMesh per (model key, mesh part). */
-export function buildInstances(scene, batches, gltfs) {
-  const glowMats = new Map();
-  for (const [key, mats] of batches) {
-    for (const { g, m } of partsOf(key, gltfs, glowMats)) {
+/**
+ * One InstancedMesh per (model key, mesh part). Growth batches ('key@stat', see layout.grown) are written
+ * sorted by threshold, so `setGrowth` only shrinks or grows `InstancedMesh.count`.
+ * @returns {{ setGrowth(stats: Record<string, number>): void }}
+ */
+export function buildInstances(scene, batches, gltfs, thresholds = new Map()) {
+  const glowMats = new Map(), lanternMats = new Map(), growers = [];
+  for (const [key, list] of batches) {
+    const ts = thresholds.get(key);
+    const order = ts ? sortByThreshold(ts) : null;
+    const mats = order ? order.map((i) => list[i]) : list;
+    const parts = partsOf(key, gltfs, glowMats, lanternMats);
+    const ims = parts.map(({ g, m }) => {
       const im = new THREE.InstancedMesh(g, m, mats.length);
       mats.forEach((mm, i) => im.setMatrixAt(i, mm));
       im.castShadow = !NO_SHADOW.has(baseKey(key)); im.receiveShadow = true; im.frustumCulled = false;
-      scene.add(im);
-    }
+      scene.add(im); return im;
+    });
+    if (order && ims.length) growers.push({ ims, stat: key.split('@')[1], sorted: Float32Array.from(order.map((i) => ts[i])) });
   }
+  return {
+    setGrowth(stats) {
+      for (const gr of growers) { const n = visibleCount(gr.sorted, stats[gr.stat]); for (const im of gr.ims) im.count = n; }
+      const glow = moralLight(stats.moral).lantern;
+      for (const lm of lanternMats.values()) lm.emissiveIntensity = glow;
+    },
+  };
 }
 
 /** Standalone clone of a model (characters keep their skeleton) with an optional animation mixer. */

@@ -150,5 +150,7 @@ export function createUi({ dom, root, scene, camera, canvas, T, DATA, nav, touch
     if (openPoi) openCard(openPoi);
   }
 
-  return { buildMarkers, buildPlaceList, pickAt, openNear, closeCard, updateNear, updateLabels, updateHelp, setFallen };
+  const openById = (id) => { const p = DATA.pois.find((q) => q.id === id); if (p) openCard(p); };
+
+  return { buildMarkers, buildPlaceList, pickAt, openNear, openById, closeCard, updateNear, updateLabels, updateHelp, setFallen };
 }

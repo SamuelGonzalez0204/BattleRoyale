@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { TAU, clamp, lerp } from './noise.js';
 import { kitScale } from './kits.js';
 import { spawnModel } from './assets.js';
+import { moralLight, placeThreshold } from './growth.js';
 
 const ADDITIVE = { transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false };
 const UV_VERT = 'varying vec2 vU; void main(){ vU=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }';
@@ -10,7 +11,8 @@ const UV_VERT = 'varying vec2 vU; void main(){ vU=uv; gl_Position=projectionMatr
 export function createEffects({ scene, T, DATA, gltfs, mixers, P, cur, reducedMotion }) {
   const { H } = T;
   const FCOL = Object.fromEntries(Object.entries(DATA.factions).map(([k, v]) => [k, v.color]));
-  const animated = [], riftLights = [];
+  const animated = [], riftLights = [], growers = [], flags = [];
+  const warm = new THREE.HemisphereLight(0xffb066, 0x3a2412, moralLight(100).warmth); scene.add(warm); // moral: warmer valley
   const fx = { fireLight: null, beamPivot: null, ring: null, riftRibbon: null, riftParticles: null };
 
   const poleMat = new THREE.MeshStandardMaterial({ color: 0x5a4330, roughness: 0.9 });
@@ -22,6 +24,7 @@ export function createEffects({ scene, T, DATA, gltfs, mixers, P, cur, reducedMo
     cloth.position.set(0.08, h - 1.25, 0); cloth.castShadow = true;
     g.add(pole, cloth); g.position.set(x, y - 0.1, z); scene.add(g);
     animated.push({ type: 'flag', obj: cloth, ph: Math.random() * TAU });
+    flags.push({ cloth, up: h - 1.25, down: 1.2, t: placeThreshold('moral', x, z) }); // moral raises the banners
   }
   function makeBoard(x, z, rot) {
     const g = new THREE.Group(), cv = document.createElement('canvas'); cv.width = 256; cv.height = 160;
@@ -101,9 +104,12 @@ export function createEffects({ scene, T, DATA, gltfs, mixers, P, cur, reducedMo
       if (sp.o.spinX) {
         const pivot = new THREE.Group(); pivot.position.copy(obj.position); pivot.rotation.y = sp.o.rot ?? 0;
         obj.position.set(0, 0, 0); obj.rotation.set(0, 0, 0); pivot.add(obj); scene.add(pivot);
-        animated.push({ type: 'spin', obj, speed: sp.o.spinX }); continue;
+        const spin = { type: 'spin', obj, speed: sp.o.spinX, active: true }; animated.push(spin);
+        if (sp.o.grow) growers.push({ ...sp.o.grow, obj: pivot, anim: spin });
+        continue;
       }
       scene.add(obj);
+      if (sp.o.grow) growers.push({ ...sp.o.grow, obj });
       if (sp.o.bob) animated.push({ type: 'bob', obj, y, amp: sp.o.bob, ph: Math.random() * TAU });
       if (sp.o.drift !== undefined) animated.push({ type: 'drift', obj, cx: sp.x, cz: sp.z, ph: sp.o.drift });
       if (sp.o.walkCircle) animated.push({ type: 'circle', obj, ...sp.o.walkCircle, ph: Math.atan2(sp.z, sp.x) });
@@ -118,7 +124,7 @@ export function createEffects({ scene, T, DATA, gltfs, mixers, P, cur, reducedMo
   }
 
   function animateObject(a, t, dt) {
-    if (a.type === 'spin') a.obj.rotation.x += a.speed * dt * (reducedMotion ? 0.3 : 1);
+    if (a.type === 'spin') { if (a.active) a.obj.rotation.x += a.speed * dt * (reducedMotion ? 0.3 : 1); }
     else if (a.type === 'bob') { a.obj.position.y = a.y + Math.sin(t * 0.8 + a.ph) * 0.12 * a.amp; a.obj.rotation.z = Math.sin(t * 0.6 + a.ph) * 0.025 * a.amp; }
     else if (a.type === 'flag') a.obj.rotation.y = Math.sin(t * 1.7 + a.ph) * 0.35;
     else if (a.type === 'drift') {
@@ -145,5 +151,15 @@ export function createEffects({ scene, T, DATA, gltfs, mixers, P, cur, reducedMo
     if (ring) { ring.visible = cur.ring > 0.02; const cyc = (t % 30) / 30, R = lerp(340, 22, 1 - (1 - cyc) ** 2); ring.scale.set(R, 120, R); ring.material.uniforms.k.value = cur.ring; }
   }
 
-  return { runSpawns, animate, fx };
+  /** Applies normalized world stats to spawned models (built / turning), banners (raised) and the warm fill. */
+  function setGrowth(stats) {
+    for (const g of growers) {
+      const on = stats[g.stat] >= g.t;
+      if (g.mode === 'spin') g.anim.active = on; else g.obj.visible = on;
+    }
+    for (const f of flags) f.cloth.position.y = stats.moral >= f.t ? f.up : f.down;
+    warm.intensity = moralLight(stats.moral).warmth;
+  }
+
+  return { runSpawns, animate, setGrowth, fx };
 }

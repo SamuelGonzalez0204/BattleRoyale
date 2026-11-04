@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { TAU, distPoly, pick, segX } from './noise.js';
 import { KIT, kitScale } from './kits.js';
+import { placeThreshold } from './growth.js';
 import { buildPlaza, buildBahia, buildMuralla } from './regions/centro.js';
 import { buildCementerio, buildBosque } from './regions/este.js';
 import { buildCampos, buildCumbres } from './regions/oeste.js';
@@ -21,8 +22,19 @@ export function mat4(x, y, z, rot, s, sy = 1) {
 /** Placement context bound to one terrain. Everything a region builder needs lives on the returned object. */
 export function createPlacement(T, DATA) {
   const { H } = T;
-  const batches = new Map(), spawns = [], banners = [], extras = [], bridges = [], occ = new Map();
-  const addM = (key, m) => { if (!batches.has(key)) batches.set(key, []); batches.get(key).push(m); };
+  const batches = new Map(), thresholds = new Map(), spawns = [], banners = [], extras = [], bridges = [], occ = new Map();
+  /* Growth tag: pieces placed inside grown() land in a per-stat batch ('key@stat') with their threshold. */
+  let tag = null;
+  const addM = (key, m) => {
+    const bk = tag && tag.mode === 'show' ? `${key}@${tag.stat}` : key;
+    if (!batches.has(bk)) batches.set(bk, []); batches.get(bk).push(m);
+    if (bk !== key) { if (!thresholds.has(bk)) thresholds.set(bk, []); thresholds.get(bk).push(tag.t); }
+  };
+  /** Runs `fn` with every piece it places tied to `stat` (mode 'show': built when stat >= t; 'spin': spawns turn). */
+  function grown(stat, x, z, fn, mode = 'show') {
+    const prev = tag; tag = { stat, t: placeThreshold(stat, x, z), mode };
+    try { return fn(); } finally { tag = prev; }
+  }
   const put = (key, x, z, o = {}) => {
     const y = (o.y ?? H(x, z)) + (o.dy ?? 0);
     addM(key, mat4(x, y, z, o.rot ?? 0, (o.s ?? 1) * kitScale(key), o.sy ?? 1));
@@ -35,7 +47,10 @@ export function createPlacement(T, DATA) {
     const s = (o.s ?? 1) * kitScale(key);
     addM(key, new THREE.Matrix4().compose(new THREE.Vector3(x, H(x, z) + (o.dy ?? 0.05), z), _q1.clone().multiply(_q2), new THREE.Vector3(s, s, s)));
   }
-  const spawn = (key, x, z, o = {}) => spawns.push({ key, x, z, o });
+  const spawn = (key, x, z, o = {}) => {
+    const g = tag ?? (key.startsWith('chars/') ? { stat: 'poblacion', t: placeThreshold('poblacion', x, z), mode: 'show' } : null);
+    spawns.push({ key, x, z, o: g ? { ...o, grow: g } : o });
+  };
 
   const cellKey = (i, j) => i * 10007 + j;
   function reserve(x, z, r) {
@@ -80,7 +95,12 @@ export function createPlacement(T, DATA) {
   }
 
   /* Composite pieces */
+  /** A house is a poblacion piece unless it is already inside grown() or opts out with `grow: false`. */
   function house(x, z, o = {}, rng = Math.random) {
+    if (tag || o.grow === false) return houseParts(x, z, o, rng);
+    return grown('poblacion', x, z, () => houseParts(x, z, o, rng));
+  }
+  function houseParts(x, z, o, rng) {
     const w = o.w ?? 2, floors = o.floors ?? 1, rot = o.rot ?? 0, s = o.s ?? KIT.town, W = WALLS[o.style ?? 'wood'];
     const hw = (w / 2) * s + 0.4;
     const y = Math.min(H(x, z), H(x + hw, z), H(x - hw, z), H(x, z + hw), H(x, z - hw)) - 0.05;
@@ -170,8 +190,8 @@ export function createPlacement(T, DATA) {
   const banner = (x, z, faction, h = 6) => { banners.push({ x, z, faction, h }); reserve(x, z, 0.6); };
 
   return {
-    T, H, DATA, batches, spawns, banners, extras, bridges,
-    put, putLocal, putTilt, spawn, reserve, isFree, valid, scatter, lineOf, house, towerRound, towerSquare,
+    T, H, DATA, batches, thresholds, spawns, banners, extras, bridges,
+    put, putLocal, putTilt, spawn, grown, reserve, isFree, valid, scatter, lineOf, house, towerRound, towerSquare,
     autoBridges, onBridge, paveRoads, pavePlaza, roadLanterns, banner,
   };
 }

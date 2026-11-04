@@ -18,9 +18,11 @@ export function buildPlaza(P, rng) {
   for (let i = 0; i < 12; i++) {
     const a = (i / 12) * TAU + 0.15; if (nearRoadAngle(a, 0.3)) continue;
     const x = Math.cos(a) * 14, z = Math.sin(a) * 14; if (!isFree(x, z, 1.4)) continue;
-    put(k++ % 2 ? 'town/stall-green' : 'town/stall-red', x, z, { rot: faceTo(x, z, 0, 0) }); put('town/stall-bench', x * 0.9, z * 0.9, { rot: faceTo(x, z, 0, 0) + Math.PI / 2 }); reserve(x, z, 1.6);
+    const kind = k++ % 2 ? 'town/stall-green' : 'town/stall-red';
+    P.grown('oro', x, z, () => { put(kind, x, z, { rot: faceTo(x, z, 0, 0) }); put('town/stall-bench', x * 0.9, z * 0.9, { rot: faceTo(x, z, 0, 0) + Math.PI / 2 }); }); reserve(x, z, 1.6);
   }
-  put('town/cart', -15, 12, { rot: 0.6 }); put('town/cart-high', 13, 15, { rot: -0.9 }); put('pirate/barrel', -14, 14); put('pirate/crate', 15, 12, { rot: 0.4 }); put('pirate/crate-bottles', 16, 10.5, { rot: 1.2 });
+  P.grown('oro', -15, 12, () => { put('town/cart', -15, 12, { rot: 0.6 }); put('pirate/barrel', -14, 14); });
+  P.grown('oro', 15, 12, () => { put('town/cart-high', 13, 15, { rot: -0.9 }); put('pirate/crate', 15, 12, { rot: 0.4 }); put('pirate/crate-bottles', 16, 10.5, { rot: 1.2 }); });
   for (const [r0, r1, n] of [[22, 25, 26], [32, 37, 34]]) for (let i = 0; i < n; i++) {
     const a = (i / n) * TAU + rng() * 0.05; if (nearRoadAngle(a, 0.2)) continue;
     const rr = lerp(r0, r1, rng()), x = Math.cos(a) * rr, z = Math.sin(a) * rr; if (!isFree(x, z, 2.2) || P.T.roadDist(x, z) < 3.6) continue;
@@ -46,7 +48,8 @@ function pier(P, x, z, ux, uz, maxN) {
 }
 
 export function buildBahia(P, rng) {
-  const { put, reserve, house, banner, spawn, scatter, extras, H } = P;
+  const { put, reserve, house, banner, scatter, extras, H } = P;
+  const spawn = (key, x, z, o) => P.grown('oro', x, z, () => P.spawn(key, x, z, o)); // ships and boats come with the gold
   put('pirate/tower-complete-large', -48, 176); reserve(-48, 176, 4);
   extras.push({ type: 'beam', x: -48, z: 176 });
   pier(P, -10, 122, 0, 1, 16); pier(P, 28, 120, 0.1, 1, 14); pier(P, -30, 134, -0.3, 1, 8);
@@ -56,7 +59,7 @@ export function buildBahia(P, rng) {
   spawn('pirate/boat-row-large', 6, 150, { y: -0.25, rot: 1.2, bob: 0.4 });
   spawn('pirate/boat-row-small', 36, 146, { y: -0.25, rot: -0.6, bob: 0.4 });
   spawn('pirate/boat-row-small', -18, 150, { y: -0.25, rot: 2.6, bob: 0.4 });
-  spawn('pirate/ship-ghost', -144, 224, { y: -0.6, rot: 0.9, bob: 1.4, ghost: true });
+  P.spawn('pirate/ship-ghost', -144, 224, { y: -0.6, rot: 0.9, bob: 1.4, ghost: true });
   put('pirate/ship-wreck', 92, 216, { y: -1.6, rot: 1.1 });
   for (let i = 0; i < 12; i++) put(pick(['pirate/rocks-sand-a', 'pirate/rocks-a', 'pirate/rocks-b'], rng), 80 + rng() * 28, 202 + rng() * 26, { y: -1.2, rot: rng() * TAU, s: 0.8 + rng() });
   [[-18, 116], [-6, 122], [22, 114], [34, 118], [44, 108], [-28, 108]].forEach(([x, z], i) => {
@@ -65,17 +68,17 @@ export function buildBahia(P, rng) {
     if (i % 2) put('pirate/flag-pennant', x + 2.6, z, { rot });
   });
   house(8, 116, { w: 3, floors: 2, style: 'stone', rot: Math.PI, roof: 'high', chimney: true }, rng);
-  [[2, 104], [8, 100], [14, 104], [-4, 100], [20, 100]].forEach(([x, z], i) => { put(i % 2 ? 'town/stall-green' : 'town/stall-red', x, z, { rot: faceTo(x, z, 8, 108) }); reserve(x, z, 1.5); });
-  scatter(rng, 50, 8, 122, 20, (x, z) => put(pick(['pirate/barrel', 'pirate/crate', 'pirate/crate-bottles', 'pirate/chest', 'pirate/bottle-large'], rng), x, z, { rot: rng() * TAU }), { minH: 0.6, road: 1.8, river: 8, r: 0.7 });
-  put('pirate/cannon', -32, 146, { rot: 0.1 }); put('pirate/cannon', 52, 140, { rot: -0.3 }); put('pirate/cannon', -38, 140, { rot: 0.4 });
+  [[2, 104], [8, 100], [14, 104], [-4, 100], [20, 100]].forEach(([x, z], i) => { P.grown('oro', x, z, () => put(i % 2 ? 'town/stall-green' : 'town/stall-red', x, z, { rot: faceTo(x, z, 8, 108) })); reserve(x, z, 1.5); });
+  scatter(rng, 50, 8, 122, 20, (x, z) => P.grown('oro', x, z, () => put(pick(['pirate/barrel', 'pirate/crate', 'pirate/crate-bottles', 'pirate/chest', 'pirate/bottle-large'], rng), x, z, { rot: rng() * TAU })), { minH: 0.6, road: 1.8, river: 8, r: 0.7 });
+  for (const [x, z, rot] of [[-32, 146, 0.1], [52, 140, -0.3], [-38, 140, 0.4]]) P.grown('defensa', x, z, () => put('pirate/cannon', x, z, { rot }));
   put('pirate/mast', 58, 128, { rot: 1.2, y: H(58, 128) - 0.3 });
   scatter(rng, 22, 8, 92, 26, (x, z) => house(x, z, { w: 1 + Math.floor(rng() * 3), floors: 1 + (rng() < 0.35 ? 1 : 0), rot: faceTo(x, z, 8, 80), style: 'wood', porch: true }, rng), { r: 3.6, road: 3.8, reserve: false });
   scatter(rng, 320, 0, 120, 200, (x, z) => put(rng() < 0.5 ? 'pirate/palm-straight' : 'pirate/palm-bend', x, z, { rot: rng() * TAU, s: 0.8 + rng() * 0.5 }),
     { minH: 0.15, maxH: 1.6, river: 8, r: 1.8, where: (x, z) => z > 80 || Math.hypot(x, z) > 184 });
   banner(-10, 124, 'gremio'); banner(28, 122, 'gremio'); banner(-42, 174, 'gremio', 5); banner(8, 110, 'gremio', 7);
-  spawn('chars/character-male-a', 4, 128, { anim: 'idle', rot: 3 });
-  spawn('chars/character-female-d', 14, 108, { anim: 'idle', rot: -2.4 });
-  spawn('chars/character-male-c', -12, 130, { anim: 'idle', rot: 1.6 });
+  P.spawn('chars/character-male-a', 4, 128, { anim: 'idle', rot: 3 });
+  P.spawn('chars/character-female-d', 14, 108, { anim: 'idle', rot: -2.4 });
+  P.spawn('chars/character-male-c', -12, 130, { anim: 'idle', rot: 1.6 });
 }
 
 export function buildMuralla(P, rng) {
@@ -88,7 +91,10 @@ export function buildMuralla(P, rng) {
     put('pirate/castle-wall', x, z, { rot: Math.atan2(-Math.cos(x * 0.025) * 0.1, 1), dy: -0.4 }); reserve(x, z, 1.4);
   }
   put('pirate/castle-gate', 0, wz(0), { dy: -0.3 });
-  for (const x of [-124, -96, -40, -5.2, 5.2, 30, 62, 94, 124]) if (H(x, wz(x)) > 1 && riverDist(x, wz(x)) > 12) towerRound(x, wz(x), x === -96 ? 3 : 2);
+  for (const x of [-124, -96, -40, -5.2, 5.2, 30, 62, 94, 124]) if (H(x, wz(x)) > 1 && riverDist(x, wz(x)) > 12) {
+    if (Math.abs(x) < 6) towerRound(x, wz(x), 2); // the gate towers always stand
+    else P.grown('defensa', x, wz(x), () => towerRound(x, wz(x), x === -96 ? 3 : 2));
+  }
   const bx = 48, bz = -100, e = 10;
   const corners = [[bx - e, bz - e], [bx + e, bz - e], [bx + e, bz + e], [bx - e, bz + e]];
   corners.forEach(([x, z]) => towerSquare(x, z, 2));
@@ -99,9 +105,9 @@ export function buildMuralla(P, rng) {
   reserve(bx, bz, 13);
   house(bx - 3, bz - 3, { w: 3, floors: 2, style: 'stone', rot: 0, roof: 'high' }, rng);
   house(bx + 5, bz - 4, { w: 1, floors: 3, style: 'stone', rot: 0 }, rng);
-  put('td/weapon-ballista', bx + 4, bz + 4, { rot: Math.PI }); put('td/weapon-catapult', bx - 5, bz + 5, { rot: Math.PI }); put('td/weapon-cannon', bx, bz + 6, { rot: Math.PI });
-  for (let x = -120; x <= 120; x += 22) { const z = wz(x) + 7; if (Math.abs(x) > 6 && H(x, z) > 1 && riverDist(x, z) > 12 && isFree(x, z, 1.2)) put(x % 44 ? 'td/weapon-catapult' : 'td/weapon-ballista', x, z, { rot: Math.PI }); }
-  put('td/weapon-cannon', -9, -122, { rot: Math.PI }); put('td/weapon-cannon', 9, -122, { rot: Math.PI });
+  for (const [key, x, z] of [['td/weapon-ballista', bx + 4, bz + 4], ['td/weapon-catapult', bx - 5, bz + 5], ['td/weapon-cannon', bx, bz + 6]]) P.grown('defensa', x, z, () => put(key, x, z, { rot: Math.PI }));
+  for (let x = -120; x <= 120; x += 22) { const z = wz(x) + 7; if (Math.abs(x) > 6 && H(x, z) > 1 && riverDist(x, z) > 12 && isFree(x, z, 1.2)) P.grown('defensa', x, z, () => put(x % 44 ? 'td/weapon-catapult' : 'td/weapon-ballista', x, z, { rot: Math.PI })); }
+  for (const x of [-9, 9]) P.grown('defensa', x, -122, () => put('td/weapon-cannon', x, -122, { rot: Math.PI }));
   scatter(rng, 14, -28, -100, 18, (x, z) => house(x, z, { w: 1 + Math.floor(rng() * 3), floors: 1 + (rng() < 0.5 ? 1 : 0), rot: faceTo(x, z, -28, -100), style: 'stone', porch: true }, rng), { r: 3.8, road: 3.4, reserve: false });
   for (let i = 0; i < 6; i++) put('survival/structure', -10 + i * 1.8, -110, { s: 1.2, rot: Math.PI }); // training stakes
   banner(-4.5, -126, 'orden', 7); banner(4.5, -126, 'orden', 7); banner(bx, bz + e + 2, 'orden', 7); banner(-96, -126, 'orden', 6); banner(-28, -88, 'orden', 6);
