@@ -13,6 +13,7 @@ export default defineConfig({
         poblado: resolve(__dirname, "poblado.html"),
         verificar: resolve(__dirname, "verificar.html"),
         recuperar: resolve(__dirname, "recuperar.html"),
+        admin: resolve(__dirname, "admin.html"),
       },
     },
   },

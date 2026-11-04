@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>El Ciclo — Administración</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div class="wrap" style="display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <div class="muted" style="font-size: 13px; letter-spacing: 3px; text-transform: uppercase;">El Ciclo</div>
+        <h1 style="font-size: 22px; margin-top: 6px;">Administración</h1>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span id="who" class="muted" style="font-size: 13px;"></span>
+        <a href="/poblado.html" style="font-size: 13px;">Volver al poblado</a>
+      </div>
+    </div>
+
+    <div id="gate" class="card" style="display: none; flex-direction: column; gap: 10px;">
+      <p id="gate-message" class="muted" style="margin: 0;"></p>
+      <a id="gate-link" href="/index.html" style="font-size: 13px;">Entrar</a>
+    </div>
+
+    <div id="panel" style="display: none; flex-direction: column; gap: 24px;">
+      <section class="card" style="display: flex; flex-direction: column; gap: 14px;">
+        <h2 style="font-size: 16px;">Temporadas y fase</h2>
+        <p class="muted" style="margin: 0; font-size: 13px;">Avanzar la fase a mano reinicia su reloj de 7 días. Colapso es la última fase.</p>
+        <div id="seasons" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div id="seasons-status" class="muted" style="display: none; font-size: 13px;"></div>
+        <div id="seasons-error" class="error" style="display: none;"></div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 14px;">
+        <h2 style="font-size: 16px;">Decisión de emergencia</h2>
+        <p class="muted" style="margin: 0; font-size: 13px;">Reemplaza la decisión de hoy de la temporada activa. Solo se puede si nadie ha votado todavía.</p>
+        <form id="emergency-form" style="display: flex; flex-direction: column; gap: 12px;">
+          <input class="input" name="question" placeholder="Pregunta" required maxlength="280" />
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <input class="input" style="flex: 1 1 240px;" name="option_a" placeholder="Opción A" required maxlength="120" />
+            <input class="input" style="flex: 1 1 240px;" name="option_b" placeholder="Opción B" required maxlength="120" />
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <input class="input" style="flex: 1 1 240px;" name="effects_a" placeholder='Efectos A, p. ej. {"comida": 8, "oro": -5}' value="{}" />
+            <input class="input" style="flex: 1 1 240px;" name="effects_b" placeholder='Efectos B, p. ej. {"moral": 4}' value="{}" />
+          </div>
+          <p class="muted" style="margin: 0; font-size: 12px;">Stats válidas: poblacion, comida, moral, defensa, oro (deltas enteros).</p>
+          <select class="input" name="role_affinity">
+            <option value="">Sin afinidad de rol</option>
+            <option value="mercader">Mercader</option>
+            <option value="guardia">Guardia</option>
+            <option value="cronista">Cronista</option>
+            <option value="explorador">Explorador</option>
+          </select>
+          <button class="btn" type="submit">Publicar decisión de hoy</button>
+        </form>
+        <div id="emergency-status" class="muted" style="display: none; font-size: 13px;"></div>
+        <div id="emergency-error" class="error" style="display: none;"></div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 14px;">
+        <h2 style="font-size: 16px;">Reports abiertos</h2>
+        <div id="reports" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div id="reports-error" class="error" style="display: none;"></div>
+      </section>
+
+      <section class="card" style="display: flex; flex-direction: column; gap: 14px;">
+        <h2 style="font-size: 16px;">Handles pendientes de verificar</h2>
+        <p class="muted" style="margin: 0; font-size: 13px;">Comprueba que el código aparece en la bio de la cuenta antes de aprobar.</p>
+        <div id="handles" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div id="handles-error" class="error" style="display: none;"></div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module" src="/src/admin.js"></script>
+</body>
+</html>

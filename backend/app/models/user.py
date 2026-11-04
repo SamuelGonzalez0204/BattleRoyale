@@ -38,6 +38,8 @@ class User(Base):
     chispas: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Acceso al panel /api/admin. Se concede con `python -m app.cli make-admin <email>`.
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false", nullable=False)
 
     # Verificación manual del handle de IG/TikTok (la revisión llega con el panel de admin, D4)
     handle_verification_status: Mapped[HandleVerificationStatus] = mapped_column(

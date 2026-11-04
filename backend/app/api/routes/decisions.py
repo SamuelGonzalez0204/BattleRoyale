@@ -23,7 +23,7 @@ def _today_decision(db: Session) -> Decision:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
 
-def _decision_out(db: Session, decision: Decision, my_vote: str | None) -> DecisionOut:
+def decision_out(db: Session, decision: Decision, my_vote: str | None) -> DecisionOut:
     votes_a, votes_b = vote_tallies(db, decision.id)
     return DecisionOut(
         id=decision.id,
@@ -55,7 +55,7 @@ def read_today(
     if existing:
         my_vote = existing.option
 
-    return _decision_out(db, decision, my_vote)
+    return decision_out(db, decision, my_vote)
 
 
 @router.post("/today/vote", response_model=DecisionOut)
@@ -86,4 +86,4 @@ def vote_today(
 
     db.commit()
 
-    return _decision_out(db, decision, payload.option)
+    return decision_out(db, decision, payload.option)

@@ -65,6 +65,25 @@ def next_phase_transition(
     return None
 
 
+class FinalPhaseReached(ValueError):
+    """Colapso es la última fase: no hay a dónde avanzar."""
+
+
+def following_phase(phase: SeasonPhase) -> SeasonPhase | None:
+    """Fase que viene después de `phase`, o None si ya es la última (colapso)."""
+    return _following_phase(phase)
+
+
+def force_advance_phase(season: PhasedSeason, now: datetime) -> SeasonPhase:
+    """Avance manual (admin): pasa a la fase siguiente ya, sin esperar al calendario.
+    El reloj de la fase se reinicia en `now`. Nunca pasa de colapso. No hace commit."""
+    following = _following_phase(season.phase)
+    if following is None:
+        raise FinalPhaseReached("La temporada ya está en colapso, la última fase")
+    season.phase, season.phase_started_at = following, now
+    return following
+
+
 def advance_phase_if_due(season: PhasedSeason, now: datetime) -> bool:
     """Avanza como mucho una fase. Devuelve True si la fase cambió. No hace commit."""
     transition = next_phase_transition(season.phase, season.phase_started_at, now)
