@@ -55,6 +55,8 @@ class Settings(BaseSettings):
     rate_limit_admin: str = "120/minute"
     # La Última Luz y patrocinio: votos de táctica, sello y patrocinios, por usuario
     rate_limit_battle_royale: str = "30/minute"
+    # Lecturas agregadas (lore público por IP; ranking y miembros por usuario)
+    rate_limit_public_read: str = "60/minute"
 
     # Tokens de un solo propósito enviados por email
     email_verification_expire_hours: int = 48

@@ -18,6 +18,8 @@ from app.api.routes import (
     battle_royale,
     decisions,
     factions,
+    lore,
+    ranking,
     reports,
     sponsor,
     users,
@@ -122,6 +124,8 @@ app.include_router(decisions.router)
 app.include_router(reports.router)
 app.include_router(battle_royale.router)
 app.include_router(sponsor.router)
+app.include_router(ranking.router)
+app.include_router(lore.router)
 app.include_router(admin.router)
 
 
